@@ -1,0 +1,26 @@
+{
+  "name": "metalsmith-optimize-html",
+  "version": "1.0.0",
+  "description": "A pure JavaScript HTML optimizer plugin for Metalsmith",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "metalsmith",
+    "metalsmith-plugin",
+    "html",
+    "minifier",
+    "optimizer"
+  ],
+  "author": "Werner Glinka",
+  "license": "MIT",
+  "devDependencies": {
+    "metalsmith": "^2.6.3",
+    "mocha": "^10.8.2"
+  },
+  "dependencies": {
+    "minimatch": "^9.0.3"
+  }
+}
