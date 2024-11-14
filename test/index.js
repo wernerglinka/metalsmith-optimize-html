@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
-import pureMini from '../lib/index.js';
+import optimizeHTML from '../lib/index.js';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
 
@@ -16,19 +16,19 @@ function readFixture( fixture, file ) {
   return readFileSync( join( __dirname, 'fixtures', fixture, file ), 'utf8' );
 }
 
-describe( 'metalsmith-html-minification', function() {
+describe( 'metalsmith-optimize-html', function() {
   it( 'should be a function', function() {
-    assert( typeof pureMini === 'function' );
+    assert( typeof optimizeHTML === 'function' );
   } );
 
   it( 'should return a plugin function', function() {
-    const plugin = pureMini();
+    const plugin = optimizeHTML();
     assert( typeof plugin === 'function' );
   } );
 
   describe( 'whitespace handling', function() {
     it( 'should collapse normal whitespace', function() {
-      const plugin = pureMini( { collapseWhitespace: true } );
+      const plugin = optimizeHTML( { collapseWhitespace: true } );
       const files = {
         'test.html': {
           contents: Buffer.from( readFixture( 'normal-whitespace', 'input.html' ) )
@@ -43,7 +43,7 @@ describe( 'metalsmith-html-minification', function() {
     } );
 
     it( 'should preserve whitespace in <pre> tags', function() {
-      const plugin = pureMini( { collapseWhitespace: true } );
+      const plugin = optimizeHTML( { collapseWhitespace: true } );
       const input = readFixture( 'pre-tag', 'input.html' );
       const files = {
         'test.html': {
@@ -59,7 +59,7 @@ describe( 'metalsmith-html-minification', function() {
     } );
 
     it( 'should handle mixed content correctly', function() {
-      const plugin = pureMini( { collapseWhitespace: true } );
+      const plugin = optimizeHTML( { collapseWhitespace: true } );
       const files = {
         'test.html': {
           contents: Buffer.from( readFixture( 'mixed-content', 'input.html' ) )

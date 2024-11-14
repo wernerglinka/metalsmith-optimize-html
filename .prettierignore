@@ -1,2 +1,2 @@
 # ignore test files
-test/fixtures/
+test/fixtures/**/*
