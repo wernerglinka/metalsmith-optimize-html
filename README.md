@@ -5,7 +5,12 @@
 [![code coverage][codecov-badge]][codecov-url]
 [![license: MIT][license-badge]][license-url]
 
-> A Metalsmith plugin for optimizing and minifying HTML files.
+> A Metalsmith plugin for optimizing and minifying HTML files - **UNDER DEVELOPMENT**
+
+Build with lots of inspiration from [htmlcompressor](https://code.google.com/archive/p/htmlcompressor/). This plugin optimizes HTML files by removing unnecessary whitespace, comments, and attributes. It also normalizes URLs, boolean attributes, and data attributes.
+
+## Why this plugin?
+There was a time when [Metalsmith HTML Minifier](https://github.com/whymarrh/metalsmith-html-minifier) was the go-to plugin for HTML optimization. However, it looks abondened and has some serious security issues. It is build as a wrapper for [HTML Minifier](https://github.com/kangax/html-minifier) which has now a security fix, but sadly the wrapper has not been updated. This plugin is build from scratch with just a few uip-to-date dependencies. This is still a work in progress, but it is already usable. Please test it and report any issues you find.
 
 ## Installation
 
