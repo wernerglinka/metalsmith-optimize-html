@@ -1,4 +1,4 @@
-# metalsmith-html-optimizer
+# Metalsmith Optimize HTML
 
 [![npm: version][npm-badge]][npm-url]
 [![license: MIT][license-badge]][license-url]
@@ -8,19 +8,19 @@
 Build with lots of inspiration from [htmlcompressor](https://code.google.com/archive/p/htmlcompressor/). This plugin optimizes HTML files by removing unnecessary whitespace, comments, and attributes. It also normalizes URLs, boolean attributes, and data attributes.
 
 ## Why this plugin?
-There was a time when [Metalsmith HTML Minifier](https://github.com/whymarrh/metalsmith-html-minifier) was the go-to plugin for HTML optimization. However, it looks abondoned and has some serious security issues. It is build as a wrapper for [HTML Minifier](https://github.com/kangax/html-minifier) which has now a security fix, but sadly the wrapper has not been updated. This plugin is build from scratch with just a few uip-to-date dependencies. This is still a work in progress, but it is already usable. Please test it and report any issues you find.
+There was a time when [Metalsmith HTML Minifier](https://github.com/whymarrh/metalsmith-html-minifier) was the go-to plugin for HTML optimization. However, it looks abondoned and has some serious security issues. It is build as a wrapper for [HTML Minifier](https://github.com/kangax/html-minifier) which has now a security fix, but sadly the wrapper has not been updated. This plugin is build from scratch with just a few up-to-date dependencies. This is still a work in progress, but it is already usable. Please test it and report any issues you find.
 
 ## Installation
 
 ```bash
-npm install @metalsmith/html-optimizer
+npm install metalsmith-optimize-html
 ```
 ## Usage
 ### JavaScript API
 
 ```javascript
 import Metalsmith from 'metalsmith'
-import optimizeHTML from '@metalsmith/html-optimizer'
+import optimizeHTML from 'metalsmith-optimize-html'
 
 Metalsmith(__dirname)
   .use(optimizeHTML({
@@ -37,7 +37,7 @@ In your `metalsmith.json`:
 ```json
 {
   "plugins": {
-    "@metalsmith/html-optimizer": {
+    "metalsmith-optimize-html": {
       "removeComments": true,
       "removeTagSpaces": true,
       "simplifyDoctype": true
@@ -143,12 +143,7 @@ In your `metalsmith.json`:
 ## Debugging
 Debug messages can be enabled by setting the DEBUG environment variable:
 ```bash
-DEBUG=@metalsmith/html-optimizer
-```
-
-or for more detailed output:
-```bash
-DEBUG=@metalsmith/html-optimizer:*
+metalsmith.env( 'DEBUG', 'metalsmith-htmlOptimize' );
 ```
 
 ## Limitations and Edge Cases
