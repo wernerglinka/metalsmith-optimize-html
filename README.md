@@ -171,9 +171,9 @@ DEBUG=@metalsmith/html-optimizer:*
 ## License
 [MIT](LICENSE)
 
-[npm-badge]: https://img.shields.io/npm/v/metalsmith-html-optimizer.svg
-[npm-url]: https://www.npmjs.com/package/metalsmith-html-optimizer
+[npm-badge]: https://img.shields.io/npm/v/metalsmith-optimize-html.svg
+[npm-url]: https://www.npmjs.com/package/metalsmith-optimize-html
 [metalsmith-badge]: https://img.shields.io/badge/metalsmith-plugin-green.svg?longCache=true
 [metalsmith-url]: https://metalsmith.io
-[license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-html-optimizer
+[license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-optimize-html
 [license-url]: LICENSE
