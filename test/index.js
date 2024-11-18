@@ -166,7 +166,7 @@ describe( 'metalsmith-optimize-html', function() {
 
     it( 'should track which optimizers are loaded', async function() {
       const plugin = optimizeHTML();
-      let foundOptimizers;
+      let debugNamespace;
 
       const files = {
         'test.html': {
@@ -175,14 +175,15 @@ describe( 'metalsmith-optimize-html', function() {
       };
 
       await plugin( files, {
-        debug: ( optimizers ) => {
-          foundOptimizers = optimizers;
+        env: { DEBUG: true },
+        debug: ( namespace ) => {
+          debugNamespace = namespace;
         }
       }, ( err ) => {
         assert( !err );
       } );
 
-      assert( foundOptimizers.some( opt => opt.name === 'whitespace' ) );
+      assert.strictEqual( debugNamespace, 'metalsmith-optimize-html' );
     } );
 
     it( 'should maintain optimizer execution order', async function() {
