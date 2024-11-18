@@ -1,8 +1,6 @@
-# @metalsmith/html-optimizer
+# metalsmith-html-optimizer
 
 [![npm: version][npm-badge]][npm-url]
-[![ci: build][ci-badge]][ci-url]
-[![code coverage][codecov-badge]][codecov-url]
 [![license: MIT][license-badge]][license-url]
 
 > A Metalsmith plugin for optimizing and minifying HTML files - **UNDER DEVELOPMENT**
@@ -171,4 +169,11 @@ DEBUG=@metalsmith/html-optimizer:*
 - Invalid JSON structures are left unchanged
 
 ## License
-MIT
+[MIT](LICENSE)
+
+[npm-badge]: https://img.shields.io/npm/v/metalsmith-html-optimizer.svg
+[npm-url]: https://www.npmjs.com/package/metalsmith-html-optimizer
+[metalsmith-badge]: https://img.shields.io/badge/metalsmith-plugin-green.svg?longCache=true
+[metalsmith-url]: https://metalsmith.io
+[license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-html-optimizer
+[license-url]: LICENSE
