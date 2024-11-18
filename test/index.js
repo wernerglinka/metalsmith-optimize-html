@@ -316,6 +316,46 @@ describe( 'metalsmith-optimize-html', function() {
       );
     } );
 
+    it( 'should clean URLs in meta tags', async function() {
+      const plugin = optimizeHTML( {
+        cleanUrlAttributes: true
+      } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'attributes/meta', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'attributes/meta', 'expected.html' )
+      );
+    } );
+
+    it( 'should clean URLs in SVG attributes', async function() {
+      const plugin = optimizeHTML( {
+        cleanUrlAttributes: true
+      } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'attributes/svg', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'attributes/svg', 'expected.html' )
+      );
+    } );
+
     it( 'should remove default attributes if enabled', async function() {
       const plugin = optimizeHTML( {
         removeDefaultAttributes: true

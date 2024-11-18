@@ -141,7 +141,8 @@ In your `metalsmith.json`:
 ```
 
 ## Debugging
-Debug messages can be enabled by setting the DEBUG environment variable:
+Debug messages can be enabled by setting the DEBUG environment variable. Metalsmith is expecting the DEBUG environment variable in this format: `metalsmith-<pluginName>`.
+The debug variable should be set to `metalsmith-htmlOptimize` as we have previously imported the plugin as `optimizeHTML`.
 ```bash
 metalsmith.env( 'DEBUG', 'metalsmith-htmlOptimize' );
 ```
@@ -158,6 +159,8 @@ metalsmith.env( 'DEBUG', 'metalsmith-htmlOptimize' );
 ### URL Processing
 - Protocol removal only affects `http://` and `https://` protocols
 - Other protocols (`ftp://`, `ws://`, etc.) remain unchanged
+- Handles URLs in meta tags (`og:url`, `twitter:url`, `canonical`)
+- Processes SVG attributes (`xmlns`, `xlink:href`, `href`, `src`)
 
 ### Data Attributes
 - JSON values in data attributes must be valid JSON
