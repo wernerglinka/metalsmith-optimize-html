@@ -31,6 +31,28 @@ describe( 'metalsmith-optimize-html', function() {
       const plugin = optimizeHTML();
       assert( typeof plugin === 'function' );
     } );
+
+    it( 'should use correct debug namespace', async function() {
+      const plugin = optimizeHTML();
+      let debugNamespace;
+
+      const files = {
+        'test.html': {
+          contents: Buffer.from( '<div>test</div>' )
+        }
+      };
+
+      await plugin( files, {
+        env: { DEBUG: true },
+        debug: ( namespace ) => {
+          debugNamespace = namespace;
+        }
+      }, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual( debugNamespace, 'metalsmith-optimize-html' );
+    } );
   } );
 
   describe( 'core whitespace handling', function() {
@@ -164,28 +186,6 @@ describe( 'metalsmith-optimize-html', function() {
       );
     } );
 
-    it( 'should track which optimizers are loaded', async function() {
-      const plugin = optimizeHTML();
-      let debugNamespace;
-
-      const files = {
-        'test.html': {
-          contents: Buffer.from( '<div>test</div>' )
-        }
-      };
-
-      await plugin( files, {
-        env: { DEBUG: true },
-        debug: ( namespace ) => {
-          debugNamespace = namespace;
-        }
-      }, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual( debugNamespace, 'metalsmith-optimize-html' );
-    } );
-
     it( 'should maintain optimizer execution order', async function() {
       const executionOrder = [];
       const plugin = optimizeHTML();
@@ -219,6 +219,63 @@ describe( 'metalsmith-optimize-html', function() {
       } );
 
       assert.deepStrictEqual( executionOrder, [ 'optimizer1', 'optimizer2' ] );
+    } );
+
+    it( 'should maintain correct optimizer execution order', async function() {
+      const plugin = optimizeHTML( {
+        removeComments: true,
+        removeTagSpaces: true
+      } );
+
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'optimizer-order', 'input.html' ) )
+        }
+      };
+
+      // Track execution order
+      const executionOrder = [];
+      plugin._testOptimizers = [
+        {
+          name: 'whitespace',
+          optimize: ( content ) => {
+            executionOrder.push( 'whitespace' );
+            return content
+              .split( /(<[^>]+>)/g )
+              .map( part => part.startsWith( '<' ) ? part : part.replace( /\s+/g, ' ' ).trim() )
+              .join( '' );
+          }
+        },
+        {
+          name: 'comments',
+          optimize: ( content ) => {
+            executionOrder.push( 'comments' );
+            return content.replace( /<!--[\s\S]*?-->/g, '' );
+          }
+        },
+        {
+          name: 'tagSpaces',
+          optimize: ( content ) => {
+            executionOrder.push( 'tagSpaces' );
+            return content.replace( /<([^>]*)>/g, ( match, inner ) =>
+              `<${ inner.replace( /\s+/g, ' ' ).trim() }>`
+            );
+          }
+        }
+      ];
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      // Verify order: whitespace should be first
+      assert.strictEqual( executionOrder[ 0 ], 'whitespace', 'Whitespace optimizer should run first' );
+
+      // Check final content matches expected
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'optimizer-order', 'expected.html' )
+      );
     } );
   } );
 
@@ -518,6 +575,47 @@ describe( 'metalsmith-optimize-html', function() {
       assert.strictEqual(
         files[ 'test.html' ].contents.toString(),
         readFixture( 'protocols/external', 'expected.html' )
+      );
+    } );
+  } );
+
+  describe( 'aggressive optimization', function() {
+    it( 'should enable all optimizations when aggressive is true', async function() {
+      const plugin = optimizeHTML( { aggressive: true } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'aggressive/normal', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'aggressive/normal', 'expected.html' )
+      );
+    } );
+
+    it( 'should allow overriding individual options when aggressive is true', async function() {
+      const plugin = optimizeHTML( {
+        aggressive: true,
+        removeComments: false // This should override aggressive setting
+      } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'aggressive/override', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'aggressive/override', 'expected.html' )
       );
     } );
   } );
