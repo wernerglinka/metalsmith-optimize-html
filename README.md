@@ -140,6 +140,32 @@ In your `metalsmith.json`:
 <!DOCTYPE html>
 ```
 
+**aggressive**: boolean (default: false)
+- Enables all optimizations with a single option:
+  - removeComments
+  - removeTagSpaces
+  - removeDefaultAttributes
+  - normalizeBooleanAttributes
+  - cleanUrlAttributes
+  - cleanDataAttributes
+  - removeEmptyAttributes
+  - removeProtocols
+  - simplifyDoctype
+
+```javascript
+Metalsmith(__dirname)
+ .use(optimizeHTML({ aggressive: true }))
+```
+All individual option settings are ignored when aggressive is true, except when explicitly overridden:
+
+```javascript
+Metalsmith(__dirname)
+  .use(optimizeHTML({
+    aggressive: true,
+    removeComments: false  // This override will be respected
+  }))
+```
+
 ## Debugging
 Debug messages can be enabled by setting the DEBUG environment variable. Metalsmith is expecting the DEBUG environment variable in this format: `metalsmith-<pluginName>`.
 The debug variable should be set to `metalsmith-htmlOptimize` as we have previously imported the plugin as `optimizeHTML`.
