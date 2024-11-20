@@ -55,117 +55,6 @@ describe( 'metalsmith-optimize-html', function() {
     } );
   } );
 
-  describe( 'core whitespace handling', function() {
-    it( 'should collapse normal whitespace', async function() {
-      const plugin = optimizeHTML();
-      const files = {
-        'test.html': {
-          contents: Buffer.from( readFixture( 'whitespace/basic', 'input.html' ) )
-        }
-      };
-
-      await plugin( files, {}, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual(
-        files[ 'test.html' ].contents.toString(),
-        readFixture( 'whitespace/basic', 'expected.html' )
-      );
-    } );
-
-    it( 'should preserve whitespace in <pre> tags', async function() {
-      const plugin = optimizeHTML();
-      const files = {
-        'test.html': {
-          contents: Buffer.from( readFixture( 'whitespace/pre', 'input.html' ) )
-        }
-      };
-
-      await plugin( files, {}, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual(
-        files[ 'test.html' ].contents.toString(),
-        readFixture( 'whitespace/pre', 'expected.html' )
-      );
-    } );
-
-    it( 'should preserve whitespace in <code> tags', async function() {
-      const plugin = optimizeHTML();
-      const files = {
-        'test.html': {
-          contents: Buffer.from( readFixture( 'whitespace/code', 'input.html' ) )
-        }
-      };
-
-      await plugin( files, {}, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual(
-        files[ 'test.html' ].contents.toString(),
-        readFixture( 'whitespace/code', 'expected.html' )
-      );
-    } );
-
-    it( 'should preserve whitespace in <textarea> tags', async function() {
-      const plugin = optimizeHTML();
-      const files = {
-        'test.html': {
-          contents: Buffer.from( readFixture( 'whitespace/textarea', 'input.html' ) )
-        }
-      };
-
-      await plugin( files, {}, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual(
-        files[ 'test.html' ].contents.toString(),
-        readFixture( 'whitespace/textarea', 'expected.html' )
-      );
-    } );
-
-    it( 'should preserve whitespace in <script> tags', async function() {
-      const plugin = optimizeHTML();
-      const files = {
-        'test.html': {
-          contents: Buffer.from( readFixture( 'whitespace/script', 'input.html' ) )
-        }
-      };
-
-      await plugin( files, {}, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual(
-        files[ 'test.html' ].contents.toString(),
-        readFixture( 'whitespace/script', 'expected.html' )
-      );
-    } );
-
-    it( 'should preserve whitespace in <style> tags', async function() {
-      const plugin = optimizeHTML();
-      const files = {
-        'test.html': {
-          contents: Buffer.from( readFixture( 'whitespace/style', 'input.html' ) )
-        }
-      };
-
-      await plugin( files, {}, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual(
-        files[ 'test.html' ].contents.toString(),
-        readFixture( 'whitespace/style', 'expected.html' )
-      );
-    } );
-
-  } );
-
   describe( 'optimizer loading', function() {
     it( 'should load core whitespace optimizer by default', async function() {
       const plugin = optimizeHTML();
@@ -275,6 +164,227 @@ describe( 'metalsmith-optimize-html', function() {
       assert.strictEqual(
         files[ 'test.html' ].contents.toString(),
         readFixture( 'optimizer-order', 'expected.html' )
+      );
+    } );
+  } );
+
+  describe( 'core whitespace handling', function() {
+    it( 'should collapse normal whitespace', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/basic', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/basic', 'expected.html' )
+      );
+    } );
+
+    it( 'should handle real live example', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/live-test', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/live-test', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve whitespace in <pre> tags', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/pre', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/pre', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve whitespace in <code> tags', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/code', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/code', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve whitespace in <textarea> tags', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/textarea', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/textarea', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve whitespace in <script> tags', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/script', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/script', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve whitespace in <style> tags', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/style', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/style', 'expected.html' )
+      );
+    } );
+
+  } );
+
+  describe( 'inline element handling', function() {
+    it( 'should normalize spaces around inline elements', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/inline', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/inline', 'expected.html' )
+      );
+    } );
+
+    it( 'should handle consecutive inline elements', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/inline-consecutive', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/inline-consecutive', 'expected.html' )
+      );
+    } );
+
+    it( 'should handle nested inline elements', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/inline-nested', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/inline-nested', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve spaces between text and inline elements', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/inline-text', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/inline-text', 'expected.html' )
+      );
+    } );
+
+    it( 'should handle various inline elements with spaces', async function() {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/inline-extended', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, {}, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/inline-extended', 'expected.html' )
       );
     } );
   } );
