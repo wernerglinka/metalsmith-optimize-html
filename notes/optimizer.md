@@ -60,3 +60,31 @@
 - Follow the optimizer interface pattern
 - Include comprehensive tests
 - Document limitations and assumptions
+
+### Testing
+
+This plugin uses Metalsmith's recommended testing approach:
+
+```javascript
+import Metalsmith from 'metalsmith';
+
+describe('metalsmith-optimize-html', function() {
+ let metalsmith;
+
+ beforeEach(function() {
+   metalsmith = new Metalsmith('test-path');
+ });
+
+ it('example test', async function() {
+   const plugin = optimizeHTML();
+   const files = {
+     'test.html': {
+       contents: Buffer.from(readFixture('test/fixture.html'))
+     }
+   };
+
+   await plugin(files, metalsmith, (err) => {
+     assert(!err);
+   });
+ });
+});

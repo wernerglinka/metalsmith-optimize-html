@@ -7,6 +7,7 @@ import assert from 'node:assert';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
+import Metalsmith from 'metalsmith';
 import optimizeHTML from '../lib/index.js';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
@@ -22,6 +23,12 @@ function readFixture( fixture, file ) {
 }
 
 describe( 'metalsmith-optimize-html', function() {
+  let metalsmith;
+
+  beforeEach( function() {
+    metalsmith = new Metalsmith( 'test-path' );
+  } );
+
   describe( 'base functionality', function() {
     it( 'should be a function', function() {
       assert( typeof optimizeHTML === 'function' );
@@ -32,27 +39,6 @@ describe( 'metalsmith-optimize-html', function() {
       assert( typeof plugin === 'function' );
     } );
 
-    it( 'should use correct debug namespace', async function() {
-      const plugin = optimizeHTML();
-      let debugNamespace;
-
-      const files = {
-        'test.html': {
-          contents: Buffer.from( '<div>test</div>' )
-        }
-      };
-
-      await plugin( files, {
-        env: { DEBUG: true },
-        debug: ( namespace ) => {
-          debugNamespace = namespace;
-        }
-      }, ( err ) => {
-        assert( !err );
-      } );
-
-      assert.strictEqual( debugNamespace, 'metalsmith-optimize-html' );
-    } );
   } );
 
   describe( 'optimizer loading', function() {
@@ -65,7 +51,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -103,7 +89,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -153,7 +139,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       ];
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -177,7 +163,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -195,7 +181,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -213,7 +199,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -231,7 +217,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -249,7 +235,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -267,7 +253,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -285,7 +271,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -306,7 +292,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -324,7 +310,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -342,7 +328,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -360,7 +346,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -378,7 +364,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -400,7 +386,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -418,7 +404,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -438,7 +424,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -456,7 +442,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -474,7 +460,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -494,7 +480,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -514,7 +500,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -534,7 +520,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -552,7 +538,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -574,7 +560,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -594,7 +580,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -616,7 +602,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -636,7 +622,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -658,7 +644,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -678,7 +664,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -698,7 +684,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
@@ -719,7 +705,7 @@ describe( 'metalsmith-optimize-html', function() {
         }
       };
 
-      await plugin( files, {}, ( err ) => {
+      await plugin( files, metalsmith, ( err ) => {
         assert( !err );
       } );
 
