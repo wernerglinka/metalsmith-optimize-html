@@ -167,10 +167,10 @@ Metalsmith(__dirname)
 ```
 
 ## Debugging
-Debug messages can be enabled by setting the DEBUG environment variable. Metalsmith is expecting the DEBUG environment variable in this format: `metalsmith-<pluginName>`.
-The debug variable should be set to `metalsmith-htmlOptimize` as we have previously imported the plugin as `optimizeHTML`.
+Debug messages can be enabled by setting the DEBUG environment variable.
+
 ```bash
-metalsmith.env( 'DEBUG', 'metalsmith-htmlOptimize' );
+metalsmith.env( 'DEBUG', 'metalsmith-optimize-html' );
 ```
 
 ## Limitations and Edge Cases
