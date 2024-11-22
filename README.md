@@ -140,6 +140,16 @@ In your `metalsmith.json`:
 <!DOCTYPE html>
 ```
 
+**safeRemoveAttributeQuotes**: boolean (default: false)
+- Only removes quotes if value contains no special characters
+- Preserves quotes for values with spaces, brackets, etc.
+
+```html
+<div class="example" id=test data-value='{"key":"value"}'>
+<!-- becomes -->
+<div class=example id="test" data-value='{"key":"value"}'>
+```
+
 **aggressive**: boolean (default: false)
 - Enables all optimizations with a single option:
   - removeComments
@@ -151,6 +161,7 @@ In your `metalsmith.json`:
   - removeEmptyAttributes
   - removeProtocols
   - simplifyDoctype
+  - safeRemoveAttributeQuotes
 
 ```javascript
 Metalsmith(__dirname)
