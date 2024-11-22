@@ -673,6 +673,62 @@ describe( 'metalsmith-optimize-html', function() {
         readFixture( 'protocols/external', 'expected.html' )
       );
     } );
+
+    it( 'should remove protocols from meta tag URLs', async function() {
+      const plugin = optimizeHTML( { removeProtocols: true } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'protocols/meta', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, metalsmith, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'protocols/meta', 'expected.html' )
+      );
+    } );
+  } );
+
+  describe( 'attribute quote removal', function() {
+    it( 'should safely remove quotes from attributes when enabled', async function() {
+      const plugin = optimizeHTML( { safeRemoveAttributeQuotes: true } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'quotes/basic', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, metalsmith, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'quotes/basic', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve quotes when values contain spaces or special chars', async function() {
+      const plugin = optimizeHTML( { safeRemoveAttributeQuotes: true } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'quotes/special', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, metalsmith, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'quotes/special', 'expected.html' )
+      );
+    } );
   } );
 
   describe( 'aggressive optimization', function() {
