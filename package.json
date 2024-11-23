@@ -19,9 +19,5 @@
   "devDependencies": {
     "metalsmith": "^2.6.3",
     "mocha": "^10.8.2"
-  },
-  "dependencies": {
-    "micromatch": "^4.0.8",
-    "minimatch": "^9.0.3"
   }
 }
