@@ -771,4 +771,70 @@ describe( 'metalsmith-optimize-html', function() {
       );
     } );
   } );
+
+  describe( 'tag exclusion', function() {
+    it( 'should preserve content in excluded tags', async function() {
+      const plugin = optimizeHTML( {
+        excludeTags: [ 'cloudinary-image', 'link-component' ]
+      } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/exclude/basic', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, metalsmith, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/exclude/basic', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve excluded tags while applying specific optimizations', async function() {
+      const plugin = optimizeHTML( {
+        excludeTags: [ 'cloudinary-image', 'link-component' ],
+        removeTagSpaces: true,
+        safeRemoveAttributeQuotes: true,
+        removeComments: true
+      } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/exclude/optimized', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, metalsmith, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/exclude/optimized', 'expected.html' )
+      );
+    } );
+
+    it( 'should preserve excluded tags in aggressive mode', async function() {
+      const plugin = optimizeHTML( {
+        aggressive: true,
+        excludeTags: [ 'cloudinary-image', 'link-component' ]
+      } );
+      const files = {
+        'test.html': {
+          contents: Buffer.from( readFixture( 'whitespace/exclude/aggressive', 'input.html' ) )
+        }
+      };
+
+      await plugin( files, metalsmith, ( err ) => {
+        assert( !err );
+      } );
+
+      assert.strictEqual(
+        files[ 'test.html' ].contents.toString(),
+        readFixture( 'whitespace/exclude/aggressive', 'expected.html' )
+      );
+    } );
+  } );
 } );
