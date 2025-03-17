@@ -2,7 +2,7 @@
   "hooks": {
     "before:init": ["npm run lint", "npm test"],
     "after:bump": "auto-changelog -p --commit-limit false --ignore-commit-pattern '^((dev|chore|ci):|Release)'",
-    "after:npm:bump": "npm pack",
+    "after:npm:bump": "npm pack && ls *.tgz",
     "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
   },
   "git": {
