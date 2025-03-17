@@ -14,7 +14,7 @@
 export const defaultAttributesOptimizer = {
   name: 'defaultAttributes',
   optimize: (content, { removeDefaultAttributes = false } = {}) => {
-    if (!removeDefaultAttributes) return content;
+    if (!removeDefaultAttributes) {return content;}
 
     // Map of elements to their default attributes
     const defaultAttributes = {
@@ -28,11 +28,11 @@ export const defaultAttributesOptimizer = {
     // Process tag by tag
     return content.replace(/<[^>]+>/g, (tag) => {
       // Don't process closing tags
-      if (tag.startsWith('</')) return tag;
+      if (tag.startsWith('</')) {return tag;}
 
       // Get tag name
       const tagMatch = tag.match(/^<([^\s>]+)/);
-      if (!tagMatch) return tag;
+      if (!tagMatch) {return tag;}
       const tagName = tagMatch[1].toLowerCase();
 
       // If tag has default attributes defined

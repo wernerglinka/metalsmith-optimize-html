@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Custom Elements Test</title>
+</head>
+<body>
+  <div>
+    <p>Regular content</p>
+    
+    <custom-element data-config='{ "setting":  "value" }' is-active="true">
+      <div class="inner">
+        <p>Content inside custom element</p>
+      </div>
+    </custom-element>
+    
+    <another-element with-attribute without-value disabled="disabled">
+      This is text inside a custom element
+    </another-element>
+    
+    <component-with-props
+      :items="['item1', 'item2']"
+      @click="handleClick"
+      v-if="isVisible"
+      class="component">
+      <template #header>
+        <h2>Custom Header</h2>
+      </template>
+      <p>Component content</p>
+    </component-with-props>
+  </div>
+</body>
+</html>

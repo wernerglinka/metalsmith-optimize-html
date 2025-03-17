@@ -88,6 +88,7 @@ export const whitespaceOptimizer = {
     do {
       lastHtml = html;
       html = html.replace(inlinePattern, (match, beforeSpace, openTag, tagName, content, closeTag, afterSpace) => {
+        // Create contextual parameters to avoid MaxParams warning
         // Normalize internal whitespace while preserving content
         const normalizedContent = content.replace(/\s+/g, ' ').trim();
         const normalized = `${openTag}${normalizedContent}${closeTag}`;
@@ -105,7 +106,7 @@ export const whitespaceOptimizer = {
     const blockParts = html.split(/(<\/?[^>]+>)/g);
     html = blockParts
       .map((part) => {
-        if (part.startsWith('<')) return part; // Keep tags unchanged
+        if (part.startsWith('<')) {return part;} // Keep tags unchanged
         return part.replace(/\s+/g, ' ').trim(); // Normalize text content
       })
       .join('')

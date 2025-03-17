@@ -7,6 +7,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+coverage.info
 
 # Dependency directory
 # Commenting this out is preferred by some people, see
@@ -18,6 +19,9 @@ build
 .idea
 .DS_Store
 /.vscode
+
+# Built files
+/lib
 
 # notes
 /notes/*

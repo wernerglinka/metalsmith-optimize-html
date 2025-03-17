@@ -1,2 +1,3 @@
-# ignore test files
-test/fixtures/**/*
+test/fixtures/**
+coverage/**
+package-lock.json

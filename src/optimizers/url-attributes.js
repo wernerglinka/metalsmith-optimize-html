@@ -7,7 +7,7 @@
 export const urlAttributesOptimizer = {
   name: 'urlAttributes',
   optimize: (content, { cleanUrlAttributes = false } = {}) => {
-    if (!cleanUrlAttributes) return content;
+    if (!cleanUrlAttributes) {return content;}
 
     const urlAttributes = new Set([
       // Standard attributes
@@ -26,14 +26,14 @@ export const urlAttributesOptimizer = {
     // Process tag by tag
     return content.replace(/<[^>]+>/g, (tag) => {
       // Don't process closing tags
-      if (tag.startsWith('</')) return tag;
+      if (tag.startsWith('</')) {return tag;}
 
       // Clean URL attributes
       return tag.replace(/\s([^\s=]+)=["']([^"']*)["']/g, (match, name, value) => {
-        if (!urlAttributes.has(name)) return match;
+        if (!urlAttributes.has(name)) {return match;}
 
         // For meta tags, only process URL-specific tags
-        if (name === 'content' && !tag.includes('og:url') && !tag.includes('twitter:url')) return match;
+        if (name === 'content' && !tag.includes('og:url') && !tag.includes('twitter:url')) {return match;}
 
         // For xlink:href with #, preserve the value
         if (name === 'xlink:href' && value.startsWith('#')) {

@@ -11,14 +11,14 @@
 export const doctypeOptimizer = {
   name: 'doctype',
   optimize: (content, { simplifyDoctype = false } = {}) => {
-    if (!simplifyDoctype) return content;
+    if (!simplifyDoctype) {return content;}
 
     // Remove all existing doctypes
     let result = content.replace(/<!DOCTYPE[^>]*>/gi, '');
 
     // Add single HTML5 doctype at the start if there was at least one doctype
     if (content.match(/<!DOCTYPE[^>]*>/i)) {
-      result = '<!DOCTYPE html>' + result;
+      result = `<!DOCTYPE html>${  result}`;
     }
 
     return result;

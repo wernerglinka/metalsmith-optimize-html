@@ -3,12 +3,22 @@
 [![npm: version][npm-badge]][npm-url]
 [![license: MIT][license-badge]][license-url]
 
-> A Metalsmith plugin for optimizing and minifying HTML files - **UNDER DEVELOPMENT**
+> A Metalsmith plugin for optimizing and minifying HTML files
 
-Build with lots of inspiration from [htmlcompressor](https://code.google.com/archive/p/htmlcompressor/). This plugin optimizes HTML files by removing unnecessary whitespace, comments, and attributes. It also normalizes URLs, boolean attributes, and data attributes.
+A modern, modular HTML optimizer for Metalsmith that reduces file sizes by removing unnecessary whitespace, comments, and redundant markup while preserving functionality. This plugin supports both ESM and CommonJS environments.
+
+## Features
+
+- **Modular Architecture**: Enable only the optimizations you need
+- **Dual Module Support**: Works with both ESM and CommonJS imports
+- **Safe Optimizations**: Preserves functionality while reducing file size
+- **Comprehensive Options**: Fine-grained control over optimizations
+- **Tag Exclusion**: Exclude specific tags from optimization
+- **Validation**: Robust input validation with helpful error messages
 
 ## Why this plugin?
-There was a time when [Metalsmith HTML Minifier](https://github.com/whymarrh/metalsmith-html-minifier) was the go-to plugin for HTML optimization. However, it looks abondoned and has some serious security issues. It is build as a wrapper for [HTML Minifier](https://github.com/kangax/html-minifier) which has now a security fix, but sadly the wrapper has not been updated. This plugin is build from scratch with just a few up-to-date dependencies. This is still a work in progress, but it is already usable. Please test it and report any issues you find.
+
+[Metalsmith HTML Minifier](https://github.com/whymarrh/metalsmith-html-minifier) was historically the standard plugin for HTML optimization, but it became abandoned with security issues. This plugin is built from scratch with modern JavaScript practices, a functional approach, and minimal dependencies. It offers more granular control over optimizations while maintaining better security and compatibility with current projects.
 
 ## Installation
 
@@ -18,9 +28,14 @@ npm install metalsmith-optimize-html
 ## Usage
 ### JavaScript API
 
+Both ESM and CommonJS imports are supported:
+
 ```javascript
-import Metalsmith from 'metalsmith'
+// ESM
 import optimizeHTML from 'metalsmith-optimize-html'
+
+// CommonJS
+const optimizeHTML = require('metalsmith-optimize-html')
 
 Metalsmith(__dirname)
   .use(optimizeHTML({
@@ -47,6 +62,8 @@ In your `metalsmith.json`:
 ```
 
 ## Options
+
+The plugin validates all options for correct types and will throw detailed error messages if invalid options are provided. This helps catch configuration mistakes early.
 
 ### Core Optimization (Always On)
 #### Whitespace normalization

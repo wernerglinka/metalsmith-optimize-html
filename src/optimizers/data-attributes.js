@@ -11,14 +11,14 @@
 export const dataAttributesOptimizer = {
   name: 'dataAttributes',
   optimize: (content, { cleanDataAttributes = false } = {}) => {
-    if (!cleanDataAttributes) return content;
+    if (!cleanDataAttributes) {return content;}
 
     return content.replace(/<[^>]+>/g, (tag) => {
-      if (tag.startsWith('</')) return tag;
+      if (tag.startsWith('</')) {return tag;}
 
       return tag.replace(/\s(data-[^\s=]+)=(["'])([\s\S]*?)\2/g, (match, name, quote, value) => {
         // Remove empty data attributes
-        if (!value.trim()) return '';
+        if (!value.trim()) {return '';}
 
         // Try to parse and normalize JSON content
         const trimmedValue = value.trim();
@@ -38,8 +38,8 @@ export const dataAttributesOptimizer = {
         }
 
         // Handle boolean values
-        if (trimmedValue.toLowerCase() === 'true') return ` ${name}="true"`;
-        if (trimmedValue.toLowerCase() === 'false') return ` ${name}="false"`;
+        if (trimmedValue.toLowerCase() === 'true') {return ` ${name}="true"`;}
+        if (trimmedValue.toLowerCase() === 'false') {return ` ${name}="false"`;}
 
         // Regular strings - normalize spaces
         return ` ${name}="${trimmedValue.replace(/\s+/g, ' ')}"`;

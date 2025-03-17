@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CDATA Test</title>
+  <script type="text/javascript">
+    <![CDATA[
+      function test() {
+        if (a < b && b > c) {
+          return true;
+        } else if (x > y) {
+          return false;
+        }
+      }
+    ]]>
+  </script>
+</head>
+<body>
+  <div>
+    <p>Regular content</p>
+    <svg>
+      <![CDATA[
+        <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
+      ]]>
+    </svg>
+  </div>
+</body>
+</html>

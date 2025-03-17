@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Conditional Comments Test</title>
+  <!--[if IE 6]>
+  <link rel="stylesheet" type="text/css" href="ie6.css">
+  <![endif]-->
+  <!--[if lt IE 9]>
+  <script src="html5shiv.js"></script>
+  <![endif]-->
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <div>
+    <!--[if IE]>
+    <p>You are using Internet Explorer.</p>
+    <![endif]-->
+    <!--[if !IE]><!-->
+    <p>You are not using Internet Explorer.</p>
+    <!--<![endif]-->
+  </div>
+</body>
+</html>
