@@ -17,6 +17,7 @@
   },
   "github": {
     "release": true,
+    "repo": "wernerglinka/metalsmith-optimize-html",
     "releaseName": "metalsmith-optimize-html ${version}",
     "tokenRef": "GITHUB_TOKEN",
     "assets": ["metalsmith-optimize-html-${version}.tgz"]
