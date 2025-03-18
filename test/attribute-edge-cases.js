@@ -29,27 +29,6 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
   });
 
   describe('URL attribute edge cases', () => {
-    it.skip('should handle complex URL formats correctly (skipped - requires implementation verification)', async () => {
-      const plugin = optimizeHTML({
-        cleanUrlAttributes: true,
-        removeProtocols: true
-      });
-
-      const files = {
-        'test.html': {
-          contents: Buffer.from(readFixture('edge-cases/url-attributes', 'input.html'))
-        }
-      };
-
-      await plugin(files, metalsmith, (err) => {
-        assert(!err);
-      });
-
-      // Just check that transformation happened, we don't need the content variable
-
-      // This test needs to be updated to match the actual implementation
-      // after analyzing the behavior of the plugin with these edge cases
-    });
 
     it('should trim whitespace in URL attributes and convert to protocol-relative URLs', async () => {
       // Test with cleanUrlAttributes enabled
@@ -74,23 +53,6 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
   });
 
   describe('data attribute edge cases', () => {
-    it.skip('should handle complex data attributes correctly (skipped - requires implementation verification)', async () => {
-      const plugin = optimizeHTML({
-        cleanDataAttributes: true
-      });
-
-      const files = {
-        'test.html': {
-          contents: Buffer.from(readFixture('edge-cases/data-attributes', 'input.html'))
-        }
-      };
-
-      await plugin(files, metalsmith, (err) => {
-        assert(!err);
-      });
-
-      // This test would need to be updated after detailed analysis of the implementation
-    });
 
     it('should handle nested quotes in data attributes', async () => {
       const plugin = optimizeHTML({
@@ -116,32 +78,6 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
   });
 
   describe('boolean attribute edge cases', () => {
-    it.skip('should handle various boolean attributes correctly (skipped - requires implementation verification)', async () => {
-      const plugin = optimizeHTML({
-        normalizeBooleanAttributes: true
-      });
-
-      const files = {
-        'test.html': {
-          contents: Buffer.from(`
-            <input type="checkbox" checked="checked" disabled="disabled" readonly="readonly">
-            <select multiple="multiple" required="required"></select>
-            <dialog open="open"></dialog>
-            <details open="true"></details>
-            <video controls="controls" autoplay="autoplay" loop="loop" muted="muted"></video>
-            <button disabled="false"></button>
-            <custom-element required="required" hidden="hidden"></custom-element>
-          `)
-        }
-      };
-
-      await plugin(files, metalsmith, (err) => {
-        assert(!err);
-      });
-
-      // This test requires detailed analysis of the implementation
-      // to match the expected behavior with actual behavior
-    });
 
     // A simpler test that should work with the current implementation
     it('should normalize standard boolean attributes', async () => {

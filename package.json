@@ -4,10 +4,11 @@
   "description": "A Metalsmith plugin to optimize HTML files",
   "type": "module",
   "main": "lib/index.cjs",
-  "module": "lib/index.modern.js",
+  "module": "lib/index.js",
   "exports": {
-    "import": "./lib/index.modern.js",
-    "require": "./lib/index.cjs"
+    "import": "./lib/index.js",
+    "require": "./lib/index.cjs",
+    "default": "./lib/index.js"
   },
   "source": "src/index.js",
   "files": [
@@ -16,7 +17,7 @@
   ],
   "scripts": {
     "coverage": "npm test && c8 report --reporter=text-lcov > ./coverage.info",
-    "build": "microbundle --target node -f modern,cjs --strict --generateTypes=false",
+    "build": "microbundle --target node -f esm,cjs --strict --generateTypes=false",
     "prepublishOnly": "npm run build",
     "format": "prettier --write \"**/*.{js,json}\"",
     "format:check": "prettier --list-different \"**/*.{yml,md,js,json}\"",
