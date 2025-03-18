@@ -1,46 +1,30 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import globals from "globals";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import globals from "globals";
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
-const compat = new FlatCompat( {
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all
-} );
-
-export default defineConfig( [
-  globalIgnores( [ "lib/**/*", "test/fixtures/**/*", "node_modules/**/*", "coverage/**/*" ] ),
+export default [
   {
-    extends: compat.extends( "eslint:recommended" ),
-
+    ignores: ["lib/**/*", "test/fixtures/**/*", "node_modules/**/*", "coverage/**/*"]
+  },
+  js.configs.recommended,
+  {
     languageOptions: {
       globals: {
-        ...globals.node,
+        ...globals.node
       },
-
       ecmaVersion: 2022,
-      sourceType: "module",
+      sourceType: "module"
     },
-
     rules: {
-      "no-console": [ "warn", {
-        allow: [ "warn", "error" ],
-      } ],
-
+      "no-console": ["warn", {
+        allow: ["warn", "error"]
+      }],
       "prefer-const": "error",
       "no-var": "error",
-
-      "no-unused-vars": [ "error", {
-        argsIgnorePattern: "^_",
-      } ],
-
-      eqeqeq: [ "error", "always" ],
-      curly: [ "error", "all" ],
+      "no-unused-vars": ["error", {
+        argsIgnorePattern: "^_"
+      }],
+      "eqeqeq": ["error", "always"],
+      "curly": ["error", "all"],
       "dot-notation": "error",
       "no-multi-assign": "error",
       "prefer-template": "error",
@@ -49,39 +33,35 @@ export default defineConfig( [
       "no-useless-return": "error",
       "no-throw-literal": "error",
       "no-await-in-loop": "warn",
-      "max-depth": [ "warn", 4 ],
-      "max-params": [ "warn", 4 ],
-      complexity: [ "warn", 15 ],
-    },
+      "max-depth": ["warn", 4],
+      "max-params": ["warn", 4],
+      "complexity": ["warn", 15]
+    }
   },
   {
-    files: [ "test/**/*.js" ],
-
+    files: ["test/**/*.js"],
     languageOptions: {
       globals: {
-        ...globals.mocha,
-      },
+        ...globals.mocha
+      }
     },
-
     rules: {
       "no-console": "off",
       "max-depth": "off",
       "max-params": "off",
-      complexity: "off",
-    },
+      "complexity": "off"
+    }
   },
   {
-    files: [ "**/optimizers/*.js" ],
-
+    files: ["**/optimizers/*.js"],
     rules: {
-      "max-params": [ "warn", 8 ],
-    },
+      "max-params": ["warn", 8]
+    }
   },
   {
-    files: [ "**/optimizer-registry.js" ],
-
+    files: ["**/optimizer-registry.js"],
     rules: {
-      "no-await-in-loop": "off",
-    },
-  },
-] );
+      "no-await-in-loop": "off"
+    }
+  }
+];

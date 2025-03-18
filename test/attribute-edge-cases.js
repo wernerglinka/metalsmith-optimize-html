@@ -3,23 +3,8 @@
  */
 
 import assert from 'node:assert';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
 import Metalsmith from 'metalsmith';
 import optimizeHTML from '../src/index.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-/**
- * Helper to read test fixtures
- * @param {string} fixture - Fixture directory name
- * @param {string} file - File name within fixture directory
- * @returns {string} Content of fixture file
- */
-function readFixture(fixture, file) {
-  return readFileSync(join(__dirname, 'fixtures', fixture, file), 'utf8');
-}
 
 describe('metalsmith-optimize-html attribute edge cases', () => {
   let metalsmith;
