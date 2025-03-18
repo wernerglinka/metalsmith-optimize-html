@@ -10,7 +10,9 @@
 export const emptyAttributesOptimizer = {
   name: 'emptyAttributes',
   optimize: (content, { removeEmptyAttributes = false } = {}) => {
-    if (!removeEmptyAttributes) {return content;}
+    if (!removeEmptyAttributes) {
+      return content;
+    }
 
     const preserveEmpty = ['alt', 'value'];
 

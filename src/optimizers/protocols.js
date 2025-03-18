@@ -11,13 +11,17 @@
 export const protocolsOptimizer = {
   name: 'protocols',
   optimize: (content, { removeProtocols = false } = {}) => {
-    if (!removeProtocols) {return content;}
+    if (!removeProtocols) {
+      return content;
+    }
 
     // URL attributes are defined in the regex pattern below
 
     return content.replace(/<[^>]+>/g, (tag) => {
       // Skip tags with rel="external"
-      if (tag.includes('rel="external"')) {return tag;}
+      if (tag.includes('rel="external"')) {
+        return tag;
+      }
 
       // Process URL attributes
       return tag.replace(

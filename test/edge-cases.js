@@ -48,7 +48,7 @@ describe('metalsmith-optimize-html edge cases', () => {
 
     it('should handle invalid file content gracefully', async () => {
       const plugin = optimizeHTML(); // Using valid options
-      
+
       const files = {
         'test.html': {
           // This is not valid HTML but shouldn't crash the plugin
@@ -112,7 +112,7 @@ describe('metalsmith-optimize-html edge cases', () => {
 
     it('should handle conditional comments correctly when removing comments', async () => {
       const plugin = optimizeHTML({
-        removeComments: true,
+        removeComments: true
       });
       const files = {
         'test.html': {
@@ -162,11 +162,11 @@ describe('metalsmith-optimize-html edge cases', () => {
       });
 
       const content = files['test.html'].contents.toString();
-      
+
       // Custom elements should be preserved and optimized
       assert(content.includes('<custom-element'));
       assert(content.includes('data-config=\'{"setting":"value"}\''));
-      assert(content.includes('disabled>'));  // Boolean attribute optimization
+      assert(content.includes('disabled>')); // Boolean attribute optimization
     });
   });
 
@@ -177,7 +177,7 @@ describe('metalsmith-optimize-html edge cases', () => {
       const plugin = optimizeHTML({
         pattern: '{**/index.html,about/**/*.html}'
       });
-      
+
       const files = {
         'index.html': {
           contents: Buffer.from('<div>  index  </div>')
@@ -208,7 +208,7 @@ describe('metalsmith-optimize-html edge cases', () => {
       const plugin = optimizeHTML({
         pattern: '**/*.html,!blog/**'
       });
-      
+
       const files = {
         'index.html': {
           contents: Buffer.from('<div>  index  </div>')

@@ -11,7 +11,7 @@
 
 /**
  * Validate that a value is a boolean or undefined
- * 
+ *
  * @param {any} value - The value to check
  * @param {string} name - Option name for error message
  * @returns {string|null} - Error message or null if valid
@@ -25,7 +25,7 @@ function validateBoolean(value, name) {
 
 /**
  * Validate that a value is a string or undefined
- * 
+ *
  * @param {any} value - The value to check
  * @param {string} name - Option name for error message
  * @returns {string|null} - Error message or null if valid
@@ -39,7 +39,7 @@ function validateString(value, name) {
 
 /**
  * Validate that a value is an array of strings or undefined
- * 
+ *
  * @param {any} value - The value to check
  * @param {string} name - Option name for error message
  * @returns {string|null} - Error message or null if valid
@@ -48,18 +48,18 @@ function validateStringArray(value, name) {
   if (value === undefined) {
     return null;
   }
-  
+
   if (!Array.isArray(value)) {
     return `Option "${name}" must be an array, got ${typeof value}: ${value}`;
   }
-  
+
   for (let i = 0; i < value.length; i++) {
     const item = value[i];
     if (typeof item !== 'string') {
       return `Option "${name}" must contain only strings, item at index ${i} is ${typeof item}: ${item}`;
     }
   }
-  
+
   return null;
 }
 
@@ -72,7 +72,7 @@ const VALIDATORS = {
   pattern: validateString,
   excludeTags: validateStringArray,
   aggressive: validateBoolean,
-  
+
   // Feature options
   removeComments: validateBoolean,
   removeTagSpaces: validateBoolean,
@@ -83,18 +83,18 @@ const VALIDATORS = {
   cleanDataAttributes: validateBoolean,
   simplifyDoctype: validateBoolean,
   safeRemoveAttributeQuotes: validateBoolean,
-  removeEmptyAttributes: validateBoolean,
+  removeEmptyAttributes: validateBoolean
 };
 
 /**
  * Validate user options against the expected schema
- * 
+ *
  * @param {Object} options - User options to validate
  * @returns {ValidationResult} - Validation result
  */
 function validateOptions(options) {
   const errors = [];
-  
+
   // Ensure options is an object
   if (!options || typeof options !== 'object' || Array.isArray(options)) {
     return {
@@ -102,14 +102,14 @@ function validateOptions(options) {
       errors: ['Options must be an object']
     };
   }
-  
+
   // Check for unknown options
   for (const key of Object.keys(options)) {
     if (!Object.prototype.hasOwnProperty.call(VALIDATORS, key)) {
       errors.push(`Unknown option "${key}"`);
     }
   }
-  
+
   // Validate each option
   for (const [name, validator] of Object.entries(VALIDATORS)) {
     if (Object.prototype.hasOwnProperty.call(options, name)) {
@@ -119,7 +119,7 @@ function validateOptions(options) {
       }
     }
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -128,15 +128,12 @@ function validateOptions(options) {
 
 /**
  * Format validation errors into a readable message
- * 
+ *
  * @param {string[]} errors - Array of error messages
  * @returns {string} - Formatted error message
  */
 function formatValidationErrors(errors) {
-  return [
-    'Invalid options for metalsmith-optimize-html:',
-    ...errors.map(err => `  - ${err}`)
-  ].join('\n');
+  return ['Invalid options for metalsmith-optimize-html:', ...errors.map((err) => `  - ${err}`)].join('\n');
 }
 
 export default {

@@ -34,7 +34,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
         cleanUrlAttributes: true,
         removeProtocols: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from(readFixture('edge-cases/url-attributes', 'input.html'))
@@ -46,7 +46,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
       });
 
       // Just check that transformation happened, we don't need the content variable
-      
+
       // This test needs to be updated to match the actual implementation
       // after analyzing the behavior of the plugin with these edge cases
     });
@@ -57,7 +57,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
         cleanUrlAttributes: true,
         removeProtocols: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from('<a href="  https://example.com/path/  ">Link</a>')
@@ -69,10 +69,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
       });
 
       // The current implementation appears to remove protocols by default
-      assert.strictEqual(
-        files['test.html'].contents.toString(),
-        '<a href="//example.com/path/">Link</a>'
-      );
+      assert.strictEqual(files['test.html'].contents.toString(), '<a href="//example.com/path/">Link</a>');
     });
   });
 
@@ -81,7 +78,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
       const plugin = optimizeHTML({
         cleanDataAttributes: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from(readFixture('edge-cases/data-attributes', 'input.html'))
@@ -99,7 +96,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
       const plugin = optimizeHTML({
         cleanDataAttributes: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from('<div data-nested=\'{"quote":"Text with \\"nested\\" quotes"}\'>Nested quotes</div>')
@@ -123,7 +120,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
       const plugin = optimizeHTML({
         normalizeBooleanAttributes: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from(`
@@ -142,16 +139,16 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
         assert(!err);
       });
 
-      // This test requires detailed analysis of the implementation 
+      // This test requires detailed analysis of the implementation
       // to match the expected behavior with actual behavior
     });
-    
+
     // A simpler test that should work with the current implementation
     it('should normalize standard boolean attributes', async () => {
       const plugin = optimizeHTML({
         normalizeBooleanAttributes: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from('<input type="checkbox" checked="checked" disabled="disabled">')
@@ -162,10 +159,7 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
         assert(!err);
       });
 
-      assert.strictEqual(
-        files['test.html'].contents.toString(),
-        '<input type="checkbox" checked disabled>'
-      );
+      assert.strictEqual(files['test.html'].contents.toString(), '<input type="checkbox" checked disabled>');
     });
   });
 });

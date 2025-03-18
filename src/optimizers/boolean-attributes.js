@@ -1,19 +1,19 @@
 /**
  * Boolean attributes optimization module
- * 
+ *
  * @module boolean-attributes-optimizer
- * 
+ *
  * Normalizes HTML boolean attributes according to the HTML5 specification:
  * - Converts attribute="attribute" to just attribute (e.g., checked="checked" → checked)
  * - Handles all standard HTML5 boolean attributes
  * - Removes attributes with value="false"
  * - Preserves attributes with non-standard values
- * 
+ *
  * @example
  * // Input
  * <input type="checkbox" checked="checked" disabled="disabled">
  * <button disabled="false">Button</button>
- * 
+ *
  * // Output
  * <input type="checkbox" checked disabled>
  * <button>Button</button>
@@ -52,7 +52,7 @@ const BOOLEAN_ATTRIBUTES = new Set([
 
 /**
  * Determine if an attribute is a boolean attribute that should be processed
- * 
+ *
  * @param {string} name - Attribute name
  * @returns {boolean} - True if the attribute should be processed
  */
@@ -62,7 +62,7 @@ function isBooleanAttribute(name) {
 
 /**
  * Process a boolean attribute
- * 
+ *
  * @param {string} match - The original attribute match
  * @param {string} name - The attribute name
  * @param {string} value - The attribute value
@@ -76,8 +76,8 @@ function processBooleanAttribute(match, name, value) {
   } else if (value === 'true' || value === name || value === '') {
     // Normalize to attribute-only form
     return ` ${name}`;
-  } 
-  
+  }
+
   // Preserve original for non-standard values
   return match;
 }

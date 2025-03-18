@@ -1,9 +1,9 @@
 /**
  * Optimizer Registry for metalsmith-optimize-html
- * 
+ *
  * Centralizes the registration and loading of HTML optimizers
  * using a functional approach.
- * 
+ *
  * @module optimizer-registry
  */
 
@@ -42,7 +42,7 @@ const optimizers = new Map();
 
 /**
  * Get an optimizer by its flag name
- * 
+ *
  * @param {string} flag - The flag name
  * @returns {Promise<Optimizer|null>} - The optimizer or null if not found
  */
@@ -56,25 +56,25 @@ async function getOptimizer(flag) {
   if (!OPTIMIZER_MAP[flag]) {
     return null;
   }
-  
+
   try {
     // Create import promise if not already created
     if (!importPromises.has(flag)) {
       importPromises.set(
         flag,
-        import(OPTIMIZER_MAP[flag]).then(module => {
+        import(OPTIMIZER_MAP[flag]).then((module) => {
           const exportName = Object.keys(module)[0];
           return module[exportName];
         })
       );
     }
-    
+
     // Await the import
     const optimizer = await importPromises.get(flag);
-    
+
     // Cache the optimizer
     optimizers.set(flag, optimizer);
-    
+
     return optimizer;
   } catch (error) {
     console.warn(`Failed to load optimizer for flag "${flag}":`, error);
@@ -84,7 +84,7 @@ async function getOptimizer(flag) {
 
 /**
  * Load optimizers based on configuration
- * 
+ *
  * @param {Object} options - Configuration options
  * @returns {Promise<Optimizer[]>} Array of initialized optimizers
  */
@@ -97,11 +97,13 @@ async function loadOptimizers(options) {
     if (whitespaceOptimizer) {
       loadedOptimizers.push(whitespaceOptimizer);
     }
-  
+
     // Dynamically load optional optimizers based on options
     for (const flag of Object.keys(OPTIMIZER_MAP)) {
-      if (flag === 'whitespace') {continue;} // Skip core optimizer
-  
+      if (flag === 'whitespace') {
+        continue;
+      } // Skip core optimizer
+
       // Load if option is not explicitly disabled
       if (options[flag] !== false) {
         // Get all optimizers in parallel instead of using await in a loop
