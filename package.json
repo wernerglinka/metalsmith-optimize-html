@@ -24,7 +24,7 @@
     "lint": "eslint --fix .",
     "lint:check": "eslint --fix-dry-run .",
     "release": "npm run build && node -r dotenv/config ./node_modules/.bin/release-it .",
-    "release:check": "npm run build && node -r dotenv/config ./node_modules/.bin/release-it . --dry-run",
+    "release:check": "npm run lint:check && npm run build && node -r dotenv/config ./node_modules/.bin/release-it . --dry-run",
     "test": "c8 mocha -t 5000",
     "test:debug": "DEBUG=metalsmith-optimize-html:* npm test",
     "test:e2e": "serve -l 3000 test/fixtures"
