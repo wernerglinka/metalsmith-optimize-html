@@ -1,5 +1,6 @@
 # Metalsmith Optimize HTML
 
+[![metalsmith: plugin][metalsmith-badge]][metalsmith-url]
 [![npm: version][npm-badge]][npm-url]
 [![license: MIT][license-badge]][license-url]
 [![Coverage][coverage-badge]][coverage-url]
@@ -228,12 +229,21 @@ Metalsmith(__dirname).use(
 );
 ```
 
-## Debugging
+## Debug
 
-Debug messages can be enabled by setting the DEBUG environment variable.
+To log debug output, set the DEBUG environment variable to `metalsmith-optimize-html`
+
+Linux/Mac:
 
 ```bash
-metalsmith.env( 'DEBUG', 'metalsmith-optimize-html' );
+DEBUG=metalsmith-optimize-html metalsmith
+```
+
+Windows:
+
+```bash
+set DEBUG=metalsmith-optimize-html
+metalsmith
 ```
 
 ## Limitations and Edge Cases
@@ -262,9 +272,8 @@ metalsmith.env( 'DEBUG', 'metalsmith-optimize-html' );
 
 ## Test Coverage
 
-| Statements | Branches | Functions | Lines |
-| ---------- | -------- | --------- | ----- |
-| 95%        | 87%      | 89%       | 95%   |
+This project maintains high statement and line coverage for the source code. Coverage is verified during the release process using the c8 coverage tool.
+
 
 ## License
 
@@ -272,6 +281,8 @@ metalsmith.env( 'DEBUG', 'metalsmith-optimize-html' );
 
 [npm-badge]: https://img.shields.io/npm/v/metalsmith-optimize-html.svg
 [npm-url]: https://www.npmjs.com/package/metalsmith-optimize-html
+[metalsmith-badge]: https://img.shields.io/badge/metalsmith-plugin-green.svg?longCache=true
+[metalsmith-url]: https://metalsmith.io
 [metalsmith-badge]: https://img.shields.io/badge/metalsmith-plugin-green.svg?longCache=true
 [metalsmith-url]: https://metalsmith.io
 [license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-optimize-html
