@@ -274,6 +274,9 @@ metalsmith
 
 This project maintains high statement and line coverage for the source code. Coverage is verified during the release process using the c8 coverage tool.
 
+## Author
+
+[werner@glinka.co](https://github.com/wernerglinka)
 
 ## License
 
@@ -287,6 +290,6 @@ This project maintains high statement and line coverage for the source code. Cov
 [metalsmith-url]: https://metalsmith.io
 [license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-optimize-html
 [license-url]: LICENSE
-[coverage-badge]: https://img.shields.io/badge/coverage-95%25-brightgreen.svg
+[coverage-badge]: https://img.shields.io/badge/test%20coverage-95%25-brightgreen.svg
 [coverage-url]: https://github.com/wernerglinka/metalsmith-optimize-html/blob/master/README.md
 [modules-badge]: https://img.shields.io/badge/modules-ESM%2FCJS-blue
