@@ -14,7 +14,6 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
   });
 
   describe('URL attribute edge cases', () => {
-
     it('should trim whitespace in URL attributes and convert to protocol-relative URLs', async () => {
       // Test with cleanUrlAttributes enabled
       const plugin = optimizeHTML({
@@ -38,7 +37,6 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
   });
 
   describe('data attribute edge cases', () => {
-
     it('should handle nested quotes in data attributes', async () => {
       const plugin = optimizeHTML({
         cleanDataAttributes: true
@@ -63,7 +61,6 @@ describe('metalsmith-optimize-html attribute edge cases', () => {
   });
 
   describe('boolean attribute edge cases', () => {
-
     // A simpler test that should work with the current implementation
     it('should normalize standard boolean attributes', async () => {
       const plugin = optimizeHTML({

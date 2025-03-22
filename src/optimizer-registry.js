@@ -99,20 +99,15 @@ async function loadOptimizers(options) {
     }
 
     // Dynamically load optional optimizers based on options
-    for (const flag of Object.keys(OPTIMIZER_MAP)) {
-      if (flag === 'whitespace') {
-        continue;
-      } // Skip core optimizer
-
-      // Load if option is not explicitly disabled
-      if (options[flag] !== false) {
-        // Get all optimizers in parallel instead of using await in a loop
-        const optimizer = await getOptimizer(flag);
-        if (optimizer) {
-          loadedOptimizers.push(optimizer);
-        }
-      }
-    }
+    const flagsToLoad = Object.keys(OPTIMIZER_MAP)
+      .filter(flag => flag !== 'whitespace' && options[flag] !== false); // Skip core optimizer and disabled flags
+    
+    // Load all optimizers in parallel using Promise.all()
+    const optimizerPromises = flagsToLoad.map(flag => getOptimizer(flag));
+    const loadedOptimizerResults = await Promise.all(optimizerPromises);
+    
+    // Filter out null values and add to loadedOptimizers
+    loadedOptimizers.push(...loadedOptimizerResults.filter(optimizer => optimizer));
   } catch (error) {
     console.error('Error loading optimizers:', error);
   }

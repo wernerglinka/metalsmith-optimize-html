@@ -91,7 +91,6 @@ describe('metalsmith-optimize-html edge cases', () => {
   });
 
   describe('HTML edge cases', () => {
-
     it('should handle conditional comments correctly when removing comments', async () => {
       const plugin = optimizeHTML({
         removeComments: true
