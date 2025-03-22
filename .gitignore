@@ -24,7 +24,6 @@ node_modules/
 jspm_packages/
 
 # Build outputs
-# We're keeping the /lib directory for users installing from GitHub
 /lib/
 /dist/
 /build/
