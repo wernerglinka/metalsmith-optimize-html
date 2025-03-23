@@ -18,6 +18,7 @@ A modern, modular HTML optimizer for Metalsmith that reduces file sizes by remov
 - **Comprehensive Options**: Fine-grained control over optimizations
 - **Tag Exclusion**: Exclude specific tags from optimization
 - **Validation**: Robust input validation with helpful error messages
+- **Reliable Compatibility**: Fixed in v0.5.3 to work correctly in CommonJS environments
 
 ## Why this plugin?
 
@@ -290,6 +291,6 @@ This project maintains high statement and line coverage for the source code. Cov
 [metalsmith-url]: https://metalsmith.io
 [license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-optimize-html
 [license-url]: LICENSE
-[coverage-badge]: https://img.shields.io/badge/test%20coverage-95%25-brightgreen.svg
+[coverage-badge]: https://img.shields.io/badge/coverage-95%25-brightgreen.svg
 [coverage-url]: https://github.com/wernerglinka/metalsmith-optimize-html/blob/master/README.md
 [modules-badge]: https://img.shields.io/badge/modules-ESM%2FCJS-blue

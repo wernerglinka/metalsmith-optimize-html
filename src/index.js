@@ -96,14 +96,14 @@ export default function optimizeHTML(userOptions = {}) {
    * @param {Object} metalsmith - Metalsmith instance
    * @param {Function} done - Callback function
    */
-  const plugin = async function (files, metalsmith, done) {
+  const plugin = function (files, metalsmith, done) {
     try {
-      // Load optimizers on first run
+      // Load optimizers on first run - now synchronous
       if (!optimizers) {
-        optimizers = await optimizerRegistry.loadOptimizers(options);
+        optimizers = optimizerRegistry.loadOptimizers(options);
       }
 
-      const debug = metalsmith.debug('metalsmith-optimize-html');
+      const debug = metalsmith.debug ? metalsmith.debug('metalsmith-optimize-html') : () => {};
       debug('running with options: %O', options);
 
       const activeOptimizers = plugin._testOptimizers || optimizers;

@@ -1,6 +1,6 @@
 {
   "name": "metalsmith-optimize-html",
-  "version": "0.5.2",
+  "version": "0.5.",
   "description": "A Metalsmith plugin to optimize HTML files",
   "type": "module",
   "main": "lib/index.cjs",
@@ -31,6 +31,7 @@
     "test": "c8 --include=src/**/*.js mocha 'test/index.js' 'test/cjs.test.cjs' -t 15000",
     "test:esm": "c8 --include=src/**/*.js mocha test/index.js -t 15000",
     "test:cjs": "c8 --include=src/**/*.js mocha test/cjs.test.cjs -t 15000",
+    "test:cjs-compat": "node test/cjs-compat/test.cjs",
     "test:e2e": "serve -l 3000 test/fixtures",
     "depcheck": "depcheck"
   },
