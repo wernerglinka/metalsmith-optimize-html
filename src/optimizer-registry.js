@@ -7,6 +7,19 @@
  * @module optimizer-registry
  */
 
+// Import optimizers directly to ensure proper bundling in both ESM and CJS
+import { whitespaceOptimizer } from './optimizers/whitespace.js';
+import { commentOptimizer } from './optimizers/comments.js';
+import { emptyAttributesOptimizer } from './optimizers/empty-attributes.js';
+import { booleanAttributesOptimizer } from './optimizers/boolean-attributes.js';
+import { urlAttributesOptimizer } from './optimizers/url-attributes.js';
+import { dataAttributesOptimizer } from './optimizers/data-attributes.js';
+import { tagSpacesOptimizer } from './optimizers/tag-spaces.js';
+import { defaultAttributesOptimizer } from './optimizers/default-attributes.js';
+import { doctypeOptimizer } from './optimizers/doctype.js';
+import { protocolsOptimizer } from './optimizers/protocols.js';
+import { safeQuoteRemovalOptimizer } from './optimizers/safe-attributes-quote-removal.js';
+
 /**
  * @typedef {Object} Optimizer
  * @property {string} name - Unique name of the optimizer
@@ -14,100 +27,80 @@
  */
 
 /**
- * Map of option flag names to optimizer file paths
- * @type {Record<string, string>}
+ * Map of option flag names to optimizer instances
+ * Using direct imports instead of dynamic imports for better compatibility
+ * @type {Record<string, Optimizer>}
  */
-const OPTIMIZER_MAP = {
+const OPTIMIZERS = {
   // Core optimizer - always loaded
-  whitespace: './optimizers/whitespace.js',
-
+  whitespace: whitespaceOptimizer,
   // Optional optimizers - loaded based on options
-  removeComments: './optimizers/comments.js',
-  removeEmptyAttributes: './optimizers/empty-attributes.js',
-  normalizeBooleanAttributes: './optimizers/boolean-attributes.js',
-  cleanUrlAttributes: './optimizers/url-attributes.js',
-  cleanDataAttributes: './optimizers/data-attributes.js',
-  removeTagSpaces: './optimizers/tag-spaces.js',
-  removeDefaultAttributes: './optimizers/default-attributes.js',
-  simplifyDoctype: './optimizers/doctype.js',
-  removeProtocols: './optimizers/protocols.js',
-  safeRemoveAttributeQuotes: './optimizers/safe-attributes-quote-removal.js'
+  removeComments: commentOptimizer,
+  removeEmptyAttributes: emptyAttributesOptimizer, 
+  normalizeBooleanAttributes: booleanAttributesOptimizer,
+  cleanUrlAttributes: urlAttributesOptimizer,
+  cleanDataAttributes: dataAttributesOptimizer,
+  removeTagSpaces: tagSpacesOptimizer,
+  removeDefaultAttributes: defaultAttributesOptimizer,
+  simplifyDoctype: doctypeOptimizer,
+  removeProtocols: protocolsOptimizer,
+  safeRemoveAttributeQuotes: safeQuoteRemovalOptimizer
 };
-
-// Cache of import promises
-const importPromises = new Map();
 
 // Cache of loaded optimizers
 const optimizers = new Map();
 
 /**
  * Get an optimizer by its flag name
+ * Now synchronously returns the optimizer from the OPTIMIZERS map
  *
  * @param {string} flag - The flag name
- * @returns {Promise<Optimizer|null>} - The optimizer or null if not found
+ * @returns {Optimizer|null} - The optimizer or null if not found
  */
-async function getOptimizer(flag) {
+function getOptimizer(flag) {
   // Return from cache if already loaded
   if (optimizers.has(flag)) {
     return optimizers.get(flag);
   }
 
   // Check if this optimizer exists
-  if (!OPTIMIZER_MAP[flag]) {
+  if (!OPTIMIZERS[flag]) {
     return null;
   }
 
-  try {
-    // Create import promise if not already created
-    if (!importPromises.has(flag)) {
-      importPromises.set(
-        flag,
-        import(OPTIMIZER_MAP[flag]).then((module) => {
-          const exportName = Object.keys(module)[0];
-          return module[exportName];
-        })
-      );
-    }
-
-    // Await the import
-    const optimizer = await importPromises.get(flag);
-
-    // Cache the optimizer
-    optimizers.set(flag, optimizer);
-
-    return optimizer;
-  } catch (error) {
-    console.warn(`Failed to load optimizer for flag "${flag}":`, error);
-    return null;
-  }
+  // Get the optimizer and cache it
+  const optimizer = OPTIMIZERS[flag];
+  optimizers.set(flag, optimizer);
+  return optimizer;
 }
 
 /**
  * Load optimizers based on configuration
+ * Now synchronously builds and returns the optimizers array
  *
  * @param {Object} options - Configuration options
- * @returns {Promise<Optimizer[]>} Array of initialized optimizers
+ * @returns {Optimizer[]} Array of initialized optimizers
  */
-async function loadOptimizers(options) {
+function loadOptimizers(options) {
   const loadedOptimizers = [];
-
   try {
     // Always load core whitespace optimizer
-    const whitespaceOptimizer = await getOptimizer('whitespace');
+    const whitespaceOptimizer = getOptimizer('whitespace');
     if (whitespaceOptimizer) {
       loadedOptimizers.push(whitespaceOptimizer);
     }
 
-    // Dynamically load optional optimizers based on options
-    const flagsToLoad = Object.keys(OPTIMIZER_MAP)
+    // Load optional optimizers based on options
+    const flagsToLoad = Object.keys(OPTIMIZERS)
       .filter(flag => flag !== 'whitespace' && options[flag] !== false); // Skip core optimizer and disabled flags
     
-    // Load all optimizers in parallel using Promise.all()
-    const optimizerPromises = flagsToLoad.map(flag => getOptimizer(flag));
-    const loadedOptimizerResults = await Promise.all(optimizerPromises);
-    
-    // Filter out null values and add to loadedOptimizers
-    loadedOptimizers.push(...loadedOptimizerResults.filter(optimizer => optimizer));
+    // Load optimizers and filter out nulls
+    flagsToLoad.forEach(flag => {
+      const optimizer = getOptimizer(flag);
+      if (optimizer) {
+        loadedOptimizers.push(optimizer);
+      }
+    });
   } catch (error) {
     console.error('Error loading optimizers:', error);
   }
@@ -119,7 +112,6 @@ async function loadOptimizers(options) {
  * Clear the optimizer cache - useful for testing
  */
 function clearCache() {
-  importPromises.clear();
   optimizers.clear();
 }
 

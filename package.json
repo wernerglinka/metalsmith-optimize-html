@@ -32,6 +32,7 @@
     "test:esm": "c8 --include=src/**/*.js mocha test/index.js -t 15000",
     "test:cjs": "c8 --include=src/**/*.js mocha test/cjs.test.cjs -t 15000",
     "test:debug": "DEBUG=metalsmith-optimize-html:* npm test",
+    "test:cjs-compat": "node test/cjs-compat/test.cjs",
     "test:e2e": "serve -l 3000 test/fixtures",
     "depcheck": "depcheck"
   },
