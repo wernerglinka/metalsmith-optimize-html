@@ -263,7 +263,7 @@ metalsmith.env( 'DEBUG', 'metalsmith-optimize-html' );
 
 ## Test Coverage
 
-This project maintains high statement and line coverage for the source code. Coverage is verified during the release process using the c8 coverage tool.
+This project maintains high statement and line coverage for the source code. Coverage is automatically verified and updated via GitHub Actions using the c8 coverage tool.
 
 | Statements | Branches | Functions | Lines |
 | ---------- | -------- | --------- | ----- |
