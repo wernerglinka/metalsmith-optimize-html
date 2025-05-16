@@ -50,23 +50,17 @@ function processContent(content, optimizers, options) {
     });
 
     // Apply optimizers
-    content = optimizers.reduce(
-      (result, optimizer) => optimizer.optimize(result, options), 
-      content
-    );
+    content = optimizers.reduce((result, optimizer) => optimizer.optimize(result, options), content);
 
     // Restore excluded content
     return preserved.reduce(
       (text, preservedContent, i) => text.replace(`___EXCLUDE_${i}___`, preservedContent),
       content
     );
-  } 
-  
+  }
+
   // Normal optimization without exclusions
-  return optimizers.reduce(
-    (result, optimizer) => optimizer.optimize(result, options), 
-    content
-  );
+  return optimizers.reduce((result, optimizer) => optimizer.optimize(result, options), content);
 }
 
 /**
@@ -85,7 +79,7 @@ export default function optimizeHTML(userOptions = {}) {
   if (!validation.valid) {
     throw new Error(validator.formatValidationErrors(validation.errors));
   }
-  
+
   // Merge options with defaults
   const options = {
     ...BASE_OPTIONS,
@@ -118,16 +112,18 @@ export default function optimizeHTML(userOptions = {}) {
       for (const [filename, file] of Object.entries(files)) {
         // Use metalsmith.match to leverage built-in file matching capabilities
         const matchedFiles = metalsmith.match(options.pattern, [filename]);
-        if (matchedFiles.length === 0) {continue;}
-        
+        if (matchedFiles.length === 0) {
+          continue;
+        }
+
         // Get content and process it
         const content = file.contents.toString();
         const optimizedContent = processContent(content, activeOptimizers, options);
-        
+
         // Update file with optimized content
         file.contents = Buffer.from(optimizedContent);
       }
-      
+
       done();
     } catch (error) {
       done(error);
@@ -136,6 +132,6 @@ export default function optimizeHTML(userOptions = {}) {
 
   // Property for testing
   plugin._testOptimizers = null;
-  
+
   return plugin;
 }

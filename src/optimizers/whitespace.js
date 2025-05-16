@@ -106,7 +106,9 @@ export const whitespaceOptimizer = {
     const blockParts = html.split(/(<\/?[^>]+>)/g);
     html = blockParts
       .map((part) => {
-        if (part.startsWith('<')) {return part;} // Keep tags unchanged
+        if (part.startsWith('<')) {
+          return part;
+        } // Keep tags unchanged
         return part.replace(/\s+/g, ' ').trim(); // Normalize text content
       })
       .join('')

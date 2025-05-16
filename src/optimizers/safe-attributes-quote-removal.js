@@ -32,30 +32,21 @@ export const safeQuoteRemovalOptimizer = {
    * <a href="//example.com">
    */
   optimize: (content, { safeRemoveAttributeQuotes = false } = {}) => {
-    if (!safeRemoveAttributeQuotes) {return content;}
+    if (!safeRemoveAttributeQuotes) {
+      return content;
+    }
 
     // URL attributes that should keep their quotes
-    const urlAttributes = new Set([
-      'href',
-      'src',
-      'action',
-      'content',
-      'srcset',
-      'xmlns',
-      'xlink:href'
-    ]);
+    const urlAttributes = new Set(['href', 'src', 'action', 'content', 'srcset', 'xmlns', 'xlink:href']);
 
     return content.replace(/<[^>]+>/g, (tag) => {
-      return tag.replace(
-        /(\s)([\w-]+)=(["'])([^"'<>`\s{}()[\]?=]+)\3/g,
-        (match, space, name, quote, value) => {
-          // Preserve quotes for URL attributes
-          if (urlAttributes.has(name) && (value.startsWith('//') || value.includes(':'))) {
-            return match;
-          }
-          return `${space}${name}=${value}`;
+      return tag.replace(/(\s)([\w-]+)=(["'])([^"'<>`\s{}()[\]?=]+)\3/g, (match, space, name, quote, value) => {
+        // Preserve quotes for URL attributes
+        if (urlAttributes.has(name) && (value.startsWith('//') || value.includes(':'))) {
+          return match;
         }
-      );
+        return `${space}${name}=${value}`;
+      });
     });
   }
 };
