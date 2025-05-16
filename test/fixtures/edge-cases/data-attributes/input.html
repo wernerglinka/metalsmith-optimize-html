@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Attributes Edge Cases</title>
+</head>
+<body>
+  <div>
+    <!-- Complex JSON in data attributes -->
+    <div data-config='{ "settings": { "theme": "dark", "fontSize": 16 }, "features": ["search", "filter", "sort"], "enabled": true }'>JSON Object</div>
+    
+    <!-- Array in data attribute -->
+    <div data-items='[ "item1", "item2", "item3" ]'>JSON Array</div>
+    
+    <!-- Special characters in data attributes -->
+    <div data-special="Characters with <angle brackets> and &quot;quotes&quot;">Special Characters</div>
+    
+    <!-- Attribute with JSON-like content but invalid -->
+    <div data-invalid='{ name: "value", enabled: true }'>Invalid JSON (missing quotes)</div>
+    
+    <!-- Empty data attributes -->
+    <div data-empty="">Empty attribute</div>
+    
+    <!-- Whitespace in data attributes -->
+    <div data-test="  value   with    spaces  ">Spaces</div>
+    
+    <!-- HTML in data attributes -->
+    <div data-template="<div><p>Hello world</p></div>">HTML template</div>
+    
+    <!-- URL in data attribute -->
+    <div data-url="https://example.com/path?query=value#fragment">URL in data</div>
+    
+    <!-- Nested quotes -->
+    <div data-nested='{"quote":"Text with \"nested\" quotes"}'>Nested quotes</div>
+  </div>
+</body>
+</html>
