@@ -7,7 +7,7 @@
 
 > A Metalsmith plugin for optimizing and minifying HTML files
 
-A modern, modular HTML optimizer for Metalsmith that reduces file sizes by removing unnecessary whitespace, comments, and redundant markup while preserving functionality. This plugin supports both ESM and CommonJS environments.
+A modern, modular HTML optimizer for Metalsmith that reduces file sizes by removing unnecessary whitespace, comments, and redundant markup while preserving functionality.
 
 ## Features
 
@@ -18,6 +18,9 @@ A modern, modular HTML optimizer for Metalsmith that reduces file sizes by remov
 - **Tag Exclusion**: Exclude specific tags from optimization
 - **Validation**: Robust input validation with helpful error messages
 - **Reliable Compatibility**: Fixed in v0.5.3 to work correctly in CommonJS environments
+- **ESM and CommonJS support**:
+  - ESM: `import optimizeHTML from 'metalsmith-optimize-html'`;
+  - CommonJS: `const optimizeHTML = require('metalsmith-optimize-html'`;')`
 
 ## Why this plugin?
 
@@ -33,15 +36,7 @@ npm install metalsmith-optimize-html
 
 ### JavaScript API
 
-Both ESM and CommonJS imports are supported:
-
 ```javascript
-// ESM
-import optimizeHTML from 'metalsmith-optimize-html';
-
-// CommonJS
-const optimizeHTML = require('metalsmith-optimize-html');
-
 Metalsmith(__dirname).use(
   optimizeHTML({
     // options
@@ -51,7 +46,7 @@ Metalsmith(__dirname).use(
 );
 ```
 
-## CLI Usage
+### CLI Usage
 
 In your `metalsmith.json`:
 
