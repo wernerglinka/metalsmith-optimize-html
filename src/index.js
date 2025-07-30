@@ -5,7 +5,7 @@
 
 import optimizerRegistry from './optimizer-registry.js';
 import validator from './validate-options.js';
-import { getMatchingFiles, isProcessableFile, isHtmlFile } from './utils/file-filters.js';
+import { getMatchingFiles, isProcessableFile } from './utils/file-filters.js';
 import { processContent } from './utils/content-processor.js';
 
 // Configuration defaults
@@ -114,7 +114,7 @@ export default function optimizeHTML(userOptions = {}) {
         }
 
         // Destructure file properties for cleaner access
-        const { contents, stats } = file;
+        const { contents } = file;
         
         // Get content and process it
         const content = contents.toString();
