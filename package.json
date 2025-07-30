@@ -1,6 +1,6 @@
 {
   "name": "metalsmith-optimize-html",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "A Metalsmith plugin to optimize HTML files",
   "type": "module",
   "main": "lib/index.cjs",
@@ -41,7 +41,15 @@
     "test:e2e": "serve -l 3000 test/fixtures",
     "depcheck": "depcheck"
   },
-  "keywords": ["metalsmith", "metalsmith-plugin", "html", "optimization", "minification", "performance", "build-tool"],
+  "keywords": [
+    "metalsmith",
+    "metalsmith-plugin",
+    "html",
+    "optimization",
+    "minification",
+    "performance",
+    "build-tool"
+  ],
   "author": "Werner Glinka",
   "license": "MIT",
   "devDependencies": {
