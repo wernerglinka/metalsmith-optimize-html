@@ -5,6 +5,8 @@
 
 import optimizerRegistry from './optimizer-registry.js';
 import validator from './validate-options.js';
+import { getMatchingFiles, isProcessableFile, isHtmlFile } from './utils/file-filters.js';
+import { processContent } from './utils/content-processor.js';
 
 // Configuration defaults
 const BASE_OPTIONS = {
@@ -31,46 +33,28 @@ const DEFAULT_AGGRESSIVE_OPTIONS = {
  */
 
 /**
- * Process content with optimizers, handling excluded tags if specified
- * @param {string} content - The HTML content to process
- * @param {Optimizer[]} optimizers - The array of optimizers to apply
- * @param {Object} options - Configuration options
- * @returns {string} - The processed HTML content
+ * @typedef {Object} Options
+ * @property {string} [pattern='**\/*.html'] - Glob pattern for matching files
+ * @property {string[]} [excludeTags=[]] - HTML tags to exclude from optimization
+ * @property {boolean} [aggressive=false] - Enable all optimizations
+ * @property {boolean} [removeComments=false] - Remove HTML comments
+ * @property {boolean} [removeTagSpaces=false] - Remove spaces around tags
+ * @property {boolean} [normalizeBooleanAttributes=false] - Normalize boolean attributes
+ * @property {boolean} [cleanUrlAttributes=false] - Clean URL attributes
+ * @property {boolean} [removeProtocols=false] - Remove protocols from URLs
+ * @property {boolean} [removeDefaultAttributes=false] - Remove default attributes
+ * @property {boolean} [cleanDataAttributes=false] - Clean data attributes
+ * @property {boolean} [simplifyDoctype=false] - Simplify DOCTYPE declaration
+ * @property {boolean} [safeRemoveAttributeQuotes=false] - Safely remove attribute quotes
  */
-function processContent(content, optimizers, options) {
-  // If we have tags to exclude from processing
-  if (options.excludeTags?.length > 0) {
-    const preserved = [];
-    const excludePattern = new RegExp(`<(${options.excludeTags.join('|')})[^>]*>[\\s\\S]*?</\\1>`, 'gi');
 
-    // Preserve excluded tags
-    content = content.replace(excludePattern, (match) => {
-      preserved.push(match);
-      return `___EXCLUDE_${preserved.length - 1}___`;
-    });
-
-    // Apply optimizers
-    content = optimizers.reduce((result, optimizer) => optimizer.optimize(result, options), content);
-
-    // Restore excluded content
-    return preserved.reduce(
-      (text, preservedContent, i) => text.replace(`___EXCLUDE_${i}___`, preservedContent),
-      content
-    );
-  }
-
-  // Normal optimization without exclusions
-  return optimizers.reduce((result, optimizer) => optimizer.optimize(result, options), content);
-}
+// processContent function moved to utils/content-processor.js
 
 /**
  * Creates a Metalsmith plugin for HTML optimization
  *
- * @param {Object} userOptions - Configuration options
- * @param {string} [userOptions.pattern] - Glob pattern for matching files
- * @param {string[]} [userOptions.excludeTags] - HTML tags to exclude from optimization
- * @param {boolean} [userOptions.aggressive] - Enable all optimizations
- * @returns {Function} Metalsmith plugin function
+ * @param {Options} userOptions - Configuration options
+ * @returns {import('metalsmith').Plugin} Metalsmith plugin function
  * @throws {Error} If options are invalid
  */
 export default function optimizeHTML(userOptions = {}) {
@@ -91,9 +75,11 @@ export default function optimizeHTML(userOptions = {}) {
   let optimizers;
 
   /**
-   * The plugin function
-   * @param {Object} files - Metalsmith files object
-   * @param {Object} metalsmith - Metalsmith instance
+   * The plugin function - Two-phase processing:
+   * Phase 1: Filter and match files for optimal performance
+   * Phase 2: Process matched files with optimizers
+   * @param {import('metalsmith').Files} files - Metalsmith files object
+   * @param {import('metalsmith')} metalsmith - Metalsmith instance
    * @param {Function} done - Callback function
    */
   const plugin = function (files, metalsmith, done) {
@@ -108,20 +94,36 @@ export default function optimizeHTML(userOptions = {}) {
 
       const activeOptimizers = plugin._testOptimizers || optimizers;
 
-      // Process each file
-      for (const [filename, file] of Object.entries(files)) {
-        // Use metalsmith.match to leverage built-in file matching capabilities
-        const matchedFiles = metalsmith.match(options.pattern, [filename]);
-        if (matchedFiles.length === 0) {
+      // Phase 1: Filter files before expensive transformations
+      const matchingFiles = getMatchingFiles(files, options.pattern, metalsmith);
+      debug('matched %d files for processing', matchingFiles.length);
+
+      // Access site-wide metadata for potential configuration
+      const metadata = metalsmith.metadata();
+      const siteOptions = metadata.htmlOptimization || {};
+      const mergedOptions = { ...options, ...siteOptions };
+
+      // Phase 2: Process each matching file
+      for (const filename of matchingFiles) {
+        const file = files[filename];
+        
+        // Validate file.contents before processing
+        if (!isProcessableFile(file)) {
+          debug('skipping %s: contents is not processable', filename);
           continue;
         }
 
+        // Destructure file properties for cleaner access
+        const { contents, stats } = file;
+        
         // Get content and process it
-        const content = file.contents.toString();
-        const optimizedContent = processContent(content, activeOptimizers, options);
+        const content = contents.toString();
+        const optimizedContent = processContent(content, activeOptimizers, mergedOptions);
 
         // Update file with optimized content
         file.contents = Buffer.from(optimizedContent);
+        
+        debug('processed %s (%d bytes -> %d bytes)', filename, content.length, optimizedContent.length);
       }
 
       done();
@@ -132,6 +134,9 @@ export default function optimizeHTML(userOptions = {}) {
 
   // Property for testing
   plugin._testOptimizers = null;
+
+  // Set function name for better debugging
+  Object.defineProperty(plugin, 'name', { value: 'optimizeHTML' });
 
   return plugin;
 }

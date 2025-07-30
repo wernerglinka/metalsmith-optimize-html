@@ -1,10 +1,11 @@
 # Metalsmith Optimize HTML
 
+[![metalsmith: plugin][metalsmith-badge]][metalsmith-url]
 [![npm: version][npm-badge]][npm-url]
 [![license: MIT][license-badge]][license-url]
 [![Coverage][coverage-badge]][coverage-url]
 [![ESM/CommonJS][modules-badge]][npm-url]
-
+[![Known Vulnerabilities](https://snyk.io/test/npm/metalsmith-optimize-html/badge.svg)](https://snyk.io/test/npm/metalsmith-optimize-html)
 > A Metalsmith plugin for optimizing and minifying HTML files
 
 A modern, modular HTML optimizer for Metalsmith that reduces file sizes by removing unnecessary whitespace, comments, and redundant markup while preserving functionality.
@@ -60,6 +61,129 @@ In your `metalsmith.json`:
     }
   }
 }
+```
+
+## Examples
+
+### Basic Usage
+
+```javascript
+import Metalsmith from 'metalsmith';
+import optimizeHTML from 'metalsmith-optimize-html';
+
+Metalsmith(__dirname)
+  .use(optimizeHTML({
+    removeComments: true,
+    removeTagSpaces: true
+  }))
+  .build((err) => {
+    if (err) throw err;
+    console.log('Build complete!');
+  });
+```
+
+### Aggressive Optimization
+
+Enable all optimizations for maximum compression:
+
+```javascript
+Metalsmith(__dirname)
+  .use(optimizeHTML({
+    aggressive: true
+  }))
+  .build();
+```
+
+### Custom Configuration
+
+Fine-tune specific optimizations:
+
+```javascript
+Metalsmith(__dirname)
+  .use(optimizeHTML({
+    removeComments: true,
+    removeTagSpaces: true,
+    normalizeBooleanAttributes: true,
+    cleanUrlAttributes: true,
+    removeProtocols: true,
+    removeDefaultAttributes: true,
+    simplifyDoctype: true,
+    safeRemoveAttributeQuotes: true,
+    pattern: '**/*.html', // Only process HTML files
+    excludeTags: ['pre', 'code'] // Preserve content in these tags
+  }))
+  .build();
+```
+
+### With Site-wide Configuration
+
+Use Metalsmith metadata for global settings:
+
+```javascript
+Metalsmith(__dirname)
+  .metadata({
+    htmlOptimization: {
+      removeComments: true,
+      removeTagSpaces: true
+    }
+  })
+  .use(optimizeHTML({
+    // Local options will override metadata settings
+    simplifyDoctype: true
+  }))
+  .build();
+```
+
+### Production vs Development
+
+```javascript
+const isProduction = process.env.NODE_ENV === 'production';
+
+Metalsmith(__dirname)
+  .use(optimizeHTML({
+    aggressive: isProduction,
+    removeComments: isProduction,
+    // Keep readable formatting in development
+    removeTagSpaces: isProduction
+  }))
+  .build();
+```
+
+### Before and After
+
+**Input HTML:**
+```html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <!-- This is a comment -->
+    <title>  My Website  </title>
+    <script type="text/javascript" src="app.js"></script>
+  </head>
+  <body>
+    <div   class="container"   id="main">
+      <p>   Hello    world!   </p>
+      <input type="checkbox" checked="checked" />
+    </div>
+  </body>
+</html>
+```
+
+**Output HTML (with aggressive optimization):**
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Website</title>
+<script src=app.js></script>
+</head>
+<body>
+<div class=container id=main>
+<p>Hello world!</p>
+<input type=checkbox checked />
+</div>
+</body>
+</html>
 ```
 
 ## Options
