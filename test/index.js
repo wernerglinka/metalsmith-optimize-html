@@ -746,4 +746,278 @@ describe('metalsmith-optimize-html', () => {
       );
     });
   });
+
+  describe('error handling and validation', () => {
+    it('should handle invalid file objects gracefully', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'invalid.html': null, // Invalid file object
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip invalid one
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+    });
+
+    it('should handle files with no contents property', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'no-contents.html': {}, // No contents property
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip invalid one
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+    });
+
+    it('should handle files with non-Buffer contents', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'non-buffer.html': {
+          contents: 'string instead of buffer' // Invalid contents type
+        },
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip invalid one
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+    });
+
+    it('should handle empty files', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'empty.html': {
+          contents: Buffer.from('')
+        },
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip empty one
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+      assert.strictEqual(files['empty.html'].contents.toString(), '');
+    });
+
+    it('should handle files with null bytes', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'null-bytes.html': {
+          contents: Buffer.from('\0\0\0\0')
+        },
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip null byte file
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+    });
+
+    it('should handle files with invalid UTF-8 sequences', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'invalid-utf8.html': {
+          contents: Buffer.from([0xFF, 0xFE, 0xFD]) // Invalid UTF-8
+        },
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip invalid UTF-8 file
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+    });
+
+    it('should handle files without HTML tags', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'no-html.html': {
+          contents: Buffer.from('Just plain text without HTML tags')
+        },
+        'valid.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process valid file and skip non-HTML file
+      assert.strictEqual(files['valid.html'].contents.toString(), '<div>test</div>');
+      assert.strictEqual(files['no-html.html'].contents.toString(), 'Just plain text without HTML tags');
+    });
+
+    it('should handle optimizer errors gracefully', async () => {
+      const plugin = optimizeHTML();
+      
+      // Mock an optimizer that throws an error
+      plugin._testOptimizers = [{
+        name: 'error-optimizer',
+        optimize: () => {
+          throw new Error('Optimizer error');
+        }
+      }];
+
+      const files = {
+        'error-test.html': {
+          contents: Buffer.from('<div>test</div>')
+        },
+        'valid.html': {
+          contents: Buffer.from('<span>valid</span>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should skip errored file but process others
+      assert.strictEqual(files['error-test.html'].contents.toString(), '<div>test</div>'); // Unchanged
+      assert.strictEqual(files['valid.html'].contents.toString(), '<span>valid</span>'); // Unchanged
+    });
+
+    it('should handle optimizer returning invalid content', async () => {
+      const plugin = optimizeHTML();
+      
+      // Mock an optimizer that returns invalid content
+      plugin._testOptimizers = [{
+        name: 'invalid-optimizer',
+        optimize: () => null // Returns invalid content
+      }];
+
+      const files = {
+        'invalid-content.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should skip file with invalid optimizer result
+      assert.strictEqual(files['invalid-content.html'].contents.toString(), '<div>test</div>'); // Unchanged
+    });
+
+    it('should handle optimizer returning empty string', async () => {
+      const plugin = optimizeHTML();
+      
+      // Mock an optimizer that returns empty string
+      plugin._testOptimizers = [{
+        name: 'empty-optimizer',
+        optimize: () => '' // Returns empty string
+      }];
+
+      const files = {
+        'empty-result.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should skip file with empty optimizer result
+      assert.strictEqual(files['empty-result.html'].contents.toString(), '<div>test</div>'); // Unchanged
+    });
+
+    it('should handle invalid option validation', () => {
+      // Test invalid pattern option
+      assert.throws(() => {
+        optimizeHTML({ pattern: 123 }); // Invalid pattern type
+      }, /Invalid options/);
+    });
+
+    it('should handle metalsmith errors in main try-catch', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from('<div>test</div>')
+        }
+      };
+
+      // Mock metalsmith.match to throw an error
+      const mockMetalsmith = {
+        debug: () => () => {},
+        metadata: () => ({}),
+        match: () => {
+          throw new Error('Metalsmith error');
+        }
+      };
+
+      await plugin(files, mockMetalsmith, (err) => {
+        assert(err);
+        assert.strictEqual(err.message, 'Metalsmith error');
+      });
+    });
+  });
+
+  describe('file filtering utilities', () => {
+    it('should identify HTML files correctly', async () => {
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from('<div>test</div>')
+        },
+        'test.htm': {
+          contents: Buffer.from('<div>test</div>')
+        },
+        'test.HTML': {
+          contents: Buffer.from('<div>test</div>')
+        },
+        'test.txt': {
+          contents: Buffer.from('not html')
+        },
+        'test.js': {
+          contents: Buffer.from('var x = 1;')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process HTML files (html, htm, HTML)
+      assert.strictEqual(files['test.html'].contents.toString(), '<div>test</div>');
+      assert.strictEqual(files['test.htm'].contents.toString(), '<div>test</div>');
+      assert.strictEqual(files['test.HTML'].contents.toString(), '<div>test</div>');
+      
+      // Should not process non-HTML files
+      assert.strictEqual(files['test.txt'].contents.toString(), 'not html');
+      assert.strictEqual(files['test.js'].contents.toString(), 'var x = 1;');
+    });
+  });
 });

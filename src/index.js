@@ -48,7 +48,72 @@ const DEFAULT_AGGRESSIVE_OPTIONS = {
  * @property {boolean} [safeRemoveAttributeQuotes=false] - Safely remove attribute quotes
  */
 
-// processContent function moved to utils/content-processor.js
+/**
+ * Process a single file with error handling and validation
+ * @param {string} filename - The filename being processed
+ * @param {Object} file - The Metalsmith file object
+ * @param {Array} activeOptimizers - Array of optimizer functions
+ * @param {Object} mergedOptions - Merged optimization options
+ * @param {Function} debug - Debug logging function
+ * @returns {boolean} True if file was processed successfully
+ */
+function processFile(filename, file, activeOptimizers, mergedOptions, debug) {
+  // Validate file.contents before processing
+  if (!isProcessableFile(file)) {
+    debug('skipping %s: contents is not processable', filename);
+    return false;
+  }
+
+  // Early filtering: skip empty files only
+  if (!file.contents || file.contents.length === 0) {
+    debug('skipping %s: empty file', filename);
+    return false;
+  }
+
+  // Destructure file properties for cleaner access
+  const { contents } = file;
+  
+  // Get content and process it with error handling
+  let content;
+  try {
+    content = contents.toString('utf8');
+  } catch (error) {
+    debug('skipping %s: failed to decode content as UTF-8 - %s', filename, error.message);
+    return false;
+  }
+  
+  // Early filtering: skip files that don't contain HTML tags
+  if (!content.includes('<') || !content.includes('>')) {
+    debug('skipping %s: no HTML tags detected', filename);
+    return false;
+  }
+  
+  // Process content with error handling
+  let optimizedContent;
+  try {
+    optimizedContent = processContent(content, activeOptimizers, mergedOptions);
+  } catch (error) {
+    debug('skipping %s: optimization failed - %s', filename, error.message);
+    return false;
+  }
+
+  // Validate optimized content before updating file
+  if (typeof optimizedContent !== 'string' || optimizedContent.length === 0) {
+    debug('skipping %s: optimization produced invalid content', filename);
+    return false;
+  }
+
+  // Update file with optimized content
+  try {
+    file.contents = Buffer.from(optimizedContent, 'utf8');
+  } catch (error) {
+    debug('skipping %s: failed to create buffer from optimized content - %s', filename, error.message);
+    return false;
+  }
+  
+  debug('processed %s (%d bytes -> %d bytes)', filename, content.length, optimizedContent.length);
+  return true;
+}
 
 /**
  * Creates a Metalsmith plugin for HTML optimization
@@ -106,24 +171,7 @@ export default function optimizeHTML(userOptions = {}) {
       // Phase 2: Process each matching file
       for (const filename of matchingFiles) {
         const file = files[filename];
-        
-        // Validate file.contents before processing
-        if (!isProcessableFile(file)) {
-          debug('skipping %s: contents is not processable', filename);
-          continue;
-        }
-
-        // Destructure file properties for cleaner access
-        const { contents } = file;
-        
-        // Get content and process it
-        const content = contents.toString();
-        const optimizedContent = processContent(content, activeOptimizers, mergedOptions);
-
-        // Update file with optimized content
-        file.contents = Buffer.from(optimizedContent);
-        
-        debug('processed %s (%d bytes -> %d bytes)', filename, content.length, optimizedContent.length);
+        processFile(filename, file, activeOptimizers, mergedOptions, debug);
       }
 
       done();
