@@ -11,7 +11,8 @@
     "release": true,
     "releaseName": "v${version}",
     "draft": false,
-    "autoGenerate": true,
+    "autoGenerate": false,
+    "releaseNotes": "npx auto-changelog -u --commit-limit false --ignore-commit-pattern '^((docs|chore|ci):|Release)' --stdout -t https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs",
     "tokenRef": "GH_TOKEN"
   },
   "npm": {
