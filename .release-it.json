@@ -5,14 +5,15 @@
     "requireBranch": "main",
     "tag": true,
     "tagName": "v${version}",
-    "push": true
+    "push": true,
+    "changelog": "npx auto-changelog -u --commit-limit false --ignore-commit-pattern '^((dev|chore|ci):|Release)' --stdout"
   },
   "github": {
     "release": true,
     "releaseName": "v${version}",
     "draft": false,
     "autoGenerate": false,
-    "releaseNotes": "npx auto-changelog -u --commit-limit false --ignore-commit-pattern '^((docs|chore|ci):|Release)' --stdout -t https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs",
+    "releaseNotes": "./scripts/release-notes.sh ${latestTag}",
     "tokenRef": "GH_TOKEN"
   },
   "npm": {
@@ -20,11 +21,9 @@
     "publishPath": "."
   },
   "hooks": {
-    "before:init": [
-      "gh auth status",
-      "npm test",
-      "npm run lint"
-    ],
-    "after:release": "echo \"✅ Successfully released ${name} v${version}\""
+    "before:init": ["npm test", "npm run lint"],
+    "before:git": ["gh --version || (echo 'GitHub CLI not found. Install with: brew install gh' && exit 1)", "gh auth status || (echo 'GitHub CLI not authenticated. Run: gh auth login' && exit 1)"],
+    "after:bump": "npx auto-changelog -p --commit-limit false --ignore-commit-pattern '^((dev|chore|ci):|Release)' && git add CHANGELOG.md",
+    "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
   }
 }
