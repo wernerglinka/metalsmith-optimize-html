@@ -1,25 +1,29 @@
 {
-  "hooks": {
-    "before:init": ["npm run lint", "npm test"],
-    "after:bump": "npx auto-changelog -p --commit-limit false --ignore-commit-pattern '^((dev|chore|ci):|Release)'",
-    "after:npm:bump": "npm pack && ls *.tgz",
-    "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
-  },
   "git": {
-    "commitMessage": "Release ${version}",
-    "commitArgs": ["-S"],
-    "tagAnnotation": "Release ${version}",
-    "tagArgs": ["-s"],
-    "changelog": "npx auto-changelog -u --commit-limit false --ignore-commit-pattern '^((dev|chore|ci):|Release)' --stdout -t https://raw.githubusercontent.com/release-it/release-it/master/templates/changelog-compact.hbs"
-  },
-  "npm": {
-    "publish": false
+    "commitMessage": "chore: release v${version}",
+    "requireCleanWorkingDir": true,
+    "requireBranch": "main",
+    "tag": true,
+    "tagName": "v${version}",
+    "push": true
   },
   "github": {
     "release": true,
-    "repo": "wernerglinka/metalsmith-optimize-html",
-    "releaseName": "metalsmith-optimize-html ${version}",
-    "tokenRef": "GH_TOKEN",
-    "assets": ["metalsmith-optimize-html-${version}.tgz"]
+    "releaseName": "v${version}",
+    "draft": false,
+    "autoGenerate": true,
+    "tokenRef": "GH_TOKEN"
+  },
+  "npm": {
+    "publish": false,
+    "publishPath": "."
+  },
+  "hooks": {
+    "before:init": [
+      "gh auth status",
+      "npm test",
+      "npm run lint"
+    ],
+    "after:release": "echo \"✅ Successfully released ${name} v${version}\""
   }
 }

@@ -116,12 +116,24 @@ export const whitespaceOptimizer = {
 
     // STEP 4: Restore preserved content
     // Replace placeholders with their preserved content in correct order
-    return preserved.reduce(
-      (text, content, i) =>
-        text
-          .replace(`___PRESERVE_${i}___`, content) // Restore preserved tags
-          .replace(`___INLINE_${i}___`, content), // Restore inline elements
-      html
-    );
+    // Use a more robust restoration approach to handle edge cases
+    let result = html;
+    
+    for (let i = 0; i < preserved.length; i++) {
+      const preservePlaceholder = `___PRESERVE_${i}___`;
+      const inlinePlaceholder = `___INLINE_${i}___`;
+      const content = preserved[i];
+      
+      // Replace all occurrences of each placeholder
+      // Split and join is more reliable than replace() for edge cases
+      if (result.includes(preservePlaceholder)) {
+        result = result.split(preservePlaceholder).join(content);
+      }
+      if (result.includes(inlinePlaceholder)) {
+        result = result.split(inlinePlaceholder).join(content);
+      }
+    }
+    
+    return result;
   }
 };

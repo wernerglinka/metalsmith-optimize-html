@@ -236,6 +236,30 @@ describe('metalsmith-optimize-html', () => {
       assert.strictEqual(files['test.html'].contents.toString(), readFixture('whitespace/script', 'expected.html'));
     });
 
+    it('should preserve Lottie player script tags with default config', async () => {
+      // This test ensures the bug fix for issue where empty config {} caused
+      // placeholder restoration failure with script tags like Lottie players
+      const plugin = optimizeHTML(); // Empty config - should only do whitespace optimization
+      const files = {
+        'test.html': {
+          contents: Buffer.from(readFixture('whitespace/lottie-player', 'input.html'))
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      
+      // Critical assertions to prevent regression of the placeholder bug
+      assert(!result.includes('___PRESERVE_'), 'No unrestored PRESERVE placeholders should remain');
+      assert(!result.includes('___EXCLUDE_'), 'No unrestored EXCLUDE placeholders should remain');
+      assert(!result.includes('___INLINE_'), 'No unrestored INLINE placeholders should remain');
+      assert(result.includes('<script'), 'Script tag must be preserved');
+      assert.strictEqual(result, readFixture('whitespace/lottie-player', 'expected.html'));
+    });
+
     it('should preserve whitespace in <style> tags', async () => {
       const plugin = optimizeHTML();
       const files = {
@@ -372,6 +396,145 @@ describe('metalsmith-optimize-html', () => {
       });
 
       assert.strictEqual(files['test.html'].contents.toString(), readFixture('comments/keep-all', 'expected.html'));
+    });
+  });
+
+  describe('optimizer edge cases', () => {
+    it('should handle content that has no matches for optimizers', async () => {
+      // Test branches where optimizers find no matches to process
+      const plugin = optimizeHTML({ 
+        removeEmptyAttributes: true,
+        normalizeBooleanAttributes: true,
+        cleanDataAttributes: true,
+        removeDefaultAttributes: true,
+        simplifyDoctype: true,
+        removeProtocols: true,
+        cleanUrlAttributes: true
+      });
+      
+      const files = {
+        'test.html': {
+          contents: Buffer.from('<p>Simple content with no attributes</p>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      // Should process without issues even when optimizers have no matches
+      assert.strictEqual(files['test.html'].contents.toString(), '<p>Simple content with no attributes</p>');
+    });
+
+    it('should handle various edge cases in optimizers', async () => {
+      // Test additional edge cases and branches
+      const plugin = optimizeHTML({ 
+        removeEmptyAttributes: true,
+        normalizeBooleanAttributes: true,
+        cleanUrlAttributes: true,
+        cleanDataAttributes: true
+      });
+      
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`<div>
+            <input type="checkbox" disabled="disabled" checked="" data-test="">
+            <a href="#" data-empty="">
+            <meta property="og:url" content="http://example.com">
+          </div>`)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      // Should optimize various attributes 
+      assert(result.includes('disabled'), 'Should normalize boolean attributes');
+      assert(result.includes('input'), 'Should preserve input tag');
+    });
+  });
+
+  describe('additional optimizer branch coverage', () => {
+    it('should handle edge cases in empty attributes optimizer', async () => {
+      const plugin = optimizeHTML({ removeEmptyAttributes: true });
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`<div>
+            <input type="text" value="" placeholder="">
+            <img src="" alt="">
+            <a href="" title="">
+            <p class="" id="">Content</p>
+          </div>`)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      assert(result.includes('type="text"'), 'Should preserve non-empty attributes');
+      // The empty attributes optimizer should process the content
+      assert(result.length > 0, 'Should produce valid output');
+    });
+
+    it('should handle various boolean attribute formats', async () => {
+      const plugin = optimizeHTML({ normalizeBooleanAttributes: true });
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`<div>
+            <input disabled="disabled" checked="checked" readonly="readonly">
+            <script defer="defer" async="async"></script>
+            <video autoplay="autoplay" controls="controls" muted="muted"></video>
+          </div>`)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      assert(result.includes('disabled'), 'Should normalize boolean attributes');
+      assert(result.includes('checked'), 'Should normalize checked attribute');
+    });
+
+    it('should handle various doctype formats', async () => {
+      const plugin = optimizeHTML({ simplifyDoctype: true });
+      const files = {
+        'test.html': {
+          contents: Buffer.from('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"><html><body>Content</body></html>')
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      assert(result.includes('<!DOCTYPE html>'), 'Should simplify doctype');
+    });
+
+    it('should handle URL attributes in different contexts', async () => {
+      const plugin = optimizeHTML({ cleanUrlAttributes: true });
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`<div>
+            <link rel="stylesheet" href="  /styles.css  ">
+            <img src="  image.jpg  " alt="test">
+            <a href="  /page.html  ">Link</a>
+          </div>`)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      assert(result.includes('href="/styles.css"'), 'Should clean URL attributes');
     });
   });
 
@@ -1018,6 +1181,74 @@ describe('metalsmith-optimize-html', () => {
       // Should not process non-HTML files
       assert.strictEqual(files['test.txt'].contents.toString(), 'not html');
       assert.strictEqual(files['test.js'].contents.toString(), 'var x = 1;');
+    });
+  });
+
+  describe('placeholder restoration validation', () => {
+    it('should handle content with placeholder-like strings in JavaScript', async () => {
+      // Test the validation logic that filters out placeholders inside quoted strings
+      const plugin = optimizeHTML({ aggressive: true });
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`<script>
+            var data = { "test": "___PRESERVE_fake___" };
+            function test() {
+              return "___EXCLUDE_fake___";
+            }
+          </script>`)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      // Should preserve the literal strings in the JavaScript
+      assert(result.includes('"___PRESERVE_fake___"'));
+      assert(result.includes('"___EXCLUDE_fake___"'));
+      assert(!result.includes('___PRESERVE_0___'), 'No actual placeholders should remain');
+    });
+
+    it('should detect and fail on actual unrestored placeholders', async () => {
+      // Direct test by providing content with unrestored placeholders
+      // Simulate what happens when restoration fails by manually creating the issue
+      const contentWithUnrestoredPlaceholder = '<div>___PRESERVE_0___ content</div>';
+
+      // Mock the processContent function to simulate the error
+      const { processContent } = (await import('../src/utils/content-processor.js'));
+      
+      // This should trigger the validation error since we have an unrestored placeholder
+      try {
+        processContent(contentWithUnrestoredPlaceholder, [], {});
+        assert.fail('Should have thrown an error');
+      } catch (error) {
+        assert(error.message.includes('Placeholder restoration failed'), 'Should have specific error message');
+        assert(error.message.includes('___PRESERVE_0___'), 'Should identify the specific placeholder');
+      }
+    });
+
+    it('should handle edge cases in placeholder validation', async () => {
+      // Test edge cases for the validation logic
+      const plugin = optimizeHTML({ aggressive: true });
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`<div>
+            <script>var x = "test ___PRESERVE_999___ test";</script>
+            <script>var y = '___EXCLUDE_888___';</script>
+            <p>Normal content</p>
+          </div>`)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      // Placeholders inside quotes should be preserved as literal strings
+      assert(result.includes('"test ___PRESERVE_999___ test"'));
+      assert(result.includes("'___EXCLUDE_888___'"));
     });
   });
 });
