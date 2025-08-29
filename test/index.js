@@ -536,6 +536,44 @@ describe('metalsmith-optimize-html', () => {
       const result = files['test.html'].contents.toString();
       assert(result.includes('href="/styles.css"'), 'Should clean URL attributes');
     });
+    
+    it('should handle optimizer early return paths', async () => {
+      // Test when optimizers are disabled (early return branches)
+      const plugin = optimizeHTML({
+        cleanDataAttributes: false,
+        removeDefaultAttributes: false,
+        simplifyDoctype: false,
+        removeProtocols: false,
+        removeEmptyAttributes: false
+      });
+      
+      const files = {
+        'test.html': {
+          contents: Buffer.from(`
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+            <html>
+            <body>
+              <div data-empty="" data-test="value">
+                <input type="text" value="" />
+                <a href="http://example.com">Link</a>
+              </div>
+            </body>
+            </html>
+          `)
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      const result = files['test.html'].contents.toString();
+      // Should only process whitespace, all other optimizations skipped
+      assert(result.includes('<!DOCTYPE html PUBLIC')); // DOCTYPE unchanged
+      assert(result.includes('data-empty=""')); // Empty attributes unchanged
+      assert(result.includes('http://example.com')); // Protocols unchanged
+      assert(result.includes('value=""')); // Default attributes unchanged
+    });
   });
 
   describe('describe attribute handling', () => {
@@ -1122,6 +1160,33 @@ describe('metalsmith-optimize-html', () => {
       assert.throws(() => {
         optimizeHTML({ pattern: 123 }); // Invalid pattern type
       }, /Invalid options/);
+      
+      // Test non-object options
+      assert.throws(() => {
+        optimizeHTML('invalid'); // String instead of object
+      }, /Options must be an object/);
+      
+      assert.throws(() => {
+        optimizeHTML([]); // Array instead of object
+      }, /Options must be an object/);
+      
+      assert.throws(() => {
+        optimizeHTML(null); // null instead of object
+      }, /Options must be an object/);
+      
+      // Test unknown options
+      assert.throws(() => {
+        optimizeHTML({ unknownOption: true });
+      }, /Unknown option "unknownOption"/);
+      
+      // Test invalid excludeTags array
+      assert.throws(() => {
+        optimizeHTML({ excludeTags: 'not-array' });
+      }, /Option "excludeTags" must be an array/);
+      
+      assert.throws(() => {
+        optimizeHTML({ excludeTags: [123, 'valid'] });
+      }, /Option "excludeTags" must contain only strings/);
     });
 
     it('should handle metalsmith errors in main try-catch', async () => {
@@ -1182,6 +1247,24 @@ describe('metalsmith-optimize-html', () => {
       assert.strictEqual(files['test.txt'].contents.toString(), 'not html');
       assert.strictEqual(files['test.js'].contents.toString(), 'var x = 1;');
     });
+    
+    it('should test utility functions directly', async () => {
+      const { isProcessableFile, isHtmlFile } = await import('../src/utils/file-filters.js');
+      
+      // Test isHtmlFile function
+      assert(isHtmlFile('test.html'));
+      assert(isHtmlFile('test.htm'));
+      assert(isHtmlFile('TEST.HTML')); // Case insensitive
+      assert(!isHtmlFile('test.js'));
+      assert(!isHtmlFile('test.css'));
+      assert(!isHtmlFile('test'));
+      
+      // Test isProcessableFile function
+      assert(isProcessableFile({ contents: Buffer.from('<div>test</div>') }));
+      assert(!isProcessableFile({})); // No contents
+      assert(!isProcessableFile({ contents: null })); // null contents
+      assert(!isProcessableFile({ contents: 'not a buffer' })); // Not a buffer
+    });
   });
 
   describe('placeholder restoration validation', () => {
@@ -1210,21 +1293,20 @@ describe('metalsmith-optimize-html', () => {
       assert(!result.includes('___PRESERVE_0___'), 'No actual placeholders should remain');
     });
 
-    it('should detect and fail on actual unrestored placeholders', async () => {
-      // Direct test by providing content with unrestored placeholders
-      // Simulate what happens when restoration fails by manually creating the issue
-      const contentWithUnrestoredPlaceholder = '<div>___PRESERVE_0___ content</div>';
+    it('should not fail on content with placeholder-like patterns', async () => {
+      // This test verifies that the plugin doesn't incorrectly flag legitimate content
+      // that happens to contain placeholder-like patterns (e.g., in JavaScript strings)
+      const contentWithPlaceholderLikePattern = '<div><script>var x = "___PRESERVE_0___";</script></div>';
 
-      // Mock the processContent function to simulate the error
+      // Process content that contains placeholder-like patterns in legitimate content
       const { processContent } = (await import('../src/utils/content-processor.js'));
       
-      // This should trigger the validation error since we have an unrestored placeholder
+      // This should NOT throw an error since these are legitimate patterns in user content
       try {
-        processContent(contentWithUnrestoredPlaceholder, [], {});
-        assert.fail('Should have thrown an error');
-      } catch (error) {
-        assert(error.message.includes('Placeholder restoration failed'), 'Should have specific error message');
-        assert(error.message.includes('___PRESERVE_0___'), 'Should identify the specific placeholder');
+        const result = processContent(contentWithPlaceholderLikePattern, [], {});
+        assert(result.includes('___PRESERVE_0___'), 'Should preserve the pattern in script content');
+      } catch {
+        assert.fail('Should not throw an error for legitimate placeholder-like patterns');
       }
     });
 

@@ -29,6 +29,12 @@ export const whitespaceOptimizer = {
    * @returns {string} Optimized HTML content
    */
   optimize: (content, options = {}) => {
+    // Check if content already contains placeholders (indicating double processing)
+    const existingPlaceholders = content.match(/___(?:PRESERVE|INLINE)_\d+___/g);
+    if (existingPlaceholders) {
+      // Return content unchanged to avoid double-processing
+      return content;
+    }
     // Tags that must maintain exact internal whitespace
     // These are typically code-related or formatting-specific elements
     const preserveTags = [
@@ -64,12 +70,14 @@ export const whitespaceOptimizer = {
 
     // Storage for content that must be preserved or processed separately
     const preserved = [];
+    const inlineElements = [];
 
     // STEP 1: Preserve special tags
     // Matches complete tag pairs with their content and preserves them exactly
     let html = content.replace(new RegExp(`(<(${preserveTags.join('|')})[^>]*>[\\s\\S]*?</\\2>)`, 'gi'), (match) => {
+      const index = preserved.length;
       preserved.push(match);
-      return `___PRESERVE_${preserved.length - 1}___`;
+      return `___PRESERVE_${index}___`;
     });
 
     // STEP 2: Handle inline elements
@@ -88,16 +96,22 @@ export const whitespaceOptimizer = {
     do {
       lastHtml = html;
       html = html.replace(inlinePattern, (match, beforeSpace, openTag, tagName, content, closeTag, afterSpace) => {
-        // Create contextual parameters to avoid MaxParams warning
+        // Skip processing if content contains placeholder patterns
+        // This prevents inline processing from interfering with PRESERVE placeholders
+        if (content.match(/___(?:PRESERVE|INLINE|EXCLUDE)_\d+___/)) {
+          return match; // Return unchanged
+        }
+        
         // Normalize internal whitespace while preserving content
         const normalizedContent = content.replace(/\s+/g, ' ').trim();
         const normalized = `${openTag}${normalizedContent}${closeTag}`;
-        preserved.push(normalized);
+        const index = inlineElements.length;
+        inlineElements.push(normalized);
 
         // Maintain contextual spacing - keep single space only where space existed
         const leadSpace = beforeSpace.length > 0 ? ' ' : '';
         const trailSpace = afterSpace.length > 0 ? ' ' : '';
-        return `${leadSpace}___INLINE_${preserved.length - 1}___${trailSpace}`;
+        return `${leadSpace}___INLINE_${index}___${trailSpace}`;
       });
     } while (html !== lastHtml); // Continue until all nested elements are processed
 
@@ -115,24 +129,33 @@ export const whitespaceOptimizer = {
       .trim();
 
     // STEP 4: Restore preserved content
-    // Replace placeholders with their preserved content in correct order
-    // Use a more robust restoration approach to handle edge cases
+    // Use a more robust restoration approach that handles all edge cases
     let result = html;
     
+    // Create a map of all placeholders and their content for efficient lookup
+    const placeholderMap = new Map();
+    
+    // Add preserved tags to map
     for (let i = 0; i < preserved.length; i++) {
-      const preservePlaceholder = `___PRESERVE_${i}___`;
-      const inlinePlaceholder = `___INLINE_${i}___`;
-      const content = preserved[i];
-      
-      // Replace all occurrences of each placeholder
-      // Split and join is more reliable than replace() for edge cases
-      if (result.includes(preservePlaceholder)) {
-        result = result.split(preservePlaceholder).join(content);
-      }
-      if (result.includes(inlinePlaceholder)) {
-        result = result.split(inlinePlaceholder).join(content);
-      }
+      placeholderMap.set(`___PRESERVE_${i}___`, preserved[i]);
     }
+    
+    // Add inline elements to map
+    for (let i = 0; i < inlineElements.length; i++) {
+      placeholderMap.set(`___INLINE_${i}___`, inlineElements[i]);
+    }
+    
+    // Replace all placeholders in a single pass using a regex
+    // This ensures placeholders are replaced even if the content contains other placeholder patterns
+    result = result.replace(/___(?:PRESERVE|INLINE)_\d+___/g, (match) => {
+      const replacement = placeholderMap.get(match);
+      if (replacement) {
+        return replacement;
+      } 
+        // This shouldn't happen in normal operation
+        return match;
+      
+    });
     
     return result;
   }
