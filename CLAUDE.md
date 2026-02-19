@@ -41,6 +41,7 @@ update-deps .
 ### Common Mistakes to AVOID
 
 **❌ Wrong Approach:**
+
 - Creating custom CLAUDE.md content instead of using `get-template plugin/CLAUDE.md`
 - Scaffolding entire new plugins when you just need a template
 - Making up template content or "simplifying" official templates
@@ -48,6 +49,7 @@ update-deps .
 - Using commands like `npx metalsmith-plugin-mcp-server scaffold ./ CLAUDE.md claude-context`
 
 **✅ Correct Approach:**
+
 - Use `list-templates` to see what's available
 - Use `get-template <template-name>` to get exact content
 - Follow validation recommendations exactly as provided
@@ -57,6 +59,7 @@ update-deps .
 ### Quick Commands
 
 **Quality & Validation:**
+
 ```bash
 npx metalsmith-plugin-mcp-server validate . --functional  # Validate with MCP server
 npm test                                                   # Run tests with coverage
@@ -64,19 +67,19 @@ npm run lint                                              # Lint and fix code
 ```
 
 **Release Process:**
+
 ```bash
 npm run release:patch   # Bug fixes (1.5.4 → 1.5.5)
-npm run release:minor   # New features (1.5.4 → 1.6.0)  
+npm run release:minor   # New features (1.5.4 → 1.6.0)
 npm run release:major   # Breaking changes (1.5.4 → 2.0.0)
 ```
 
 **Development:**
+
 ```bash
 npm run build          # Build ESM/CJS versions
 npm run test:coverage  # Run tests with detailed coverage
 ```
-
-
 
 ## Plugin Overview
 
@@ -129,6 +132,7 @@ This plugin optimizes HTML content in Metalsmith files using configurable HTML m
 ### HTML Processing Pipeline
 
 The plugin follows Metalsmith's standard pattern:
+
 1. File filtering based on patterns
 2. Content validation and preprocessing
 3. HTML optimization/minification
@@ -159,18 +163,21 @@ When working on this plugin:
 ## Common Tasks
 
 ### Adding New Optimization Features
+
 - Add utility functions to `src/utils/`
 - Update options type definitions
 - Add corresponding tests with fixtures
 - Update README documentation
 
 ### Performance Improvements
+
 - Focus on file filtering efficiency
 - Optimize buffer operations
 - Consider memory usage patterns
 - Benchmark against existing fixtures
 
 ### Debugging Issues
+
 - Use the debug module for logging
 - Check buffer validation points
 - Verify file pattern matching

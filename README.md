@@ -6,6 +6,7 @@
 [![Coverage][coverage-badge]][coverage-url]
 [![ESM/CommonJS][modules-badge]][npm-url]
 [![Known Vulnerabilities](https://snyk.io/test/npm/metalsmith-optimize-html/badge.svg)](https://snyk.io/test/npm/metalsmith-optimize-html)
+
 > A Metalsmith plugin for optimizing and minifying HTML files
 
 A modern, modular HTML optimizer for Metalsmith that reduces file sizes by removing unnecessary whitespace, comments, and redundant markup while preserving functionality.
@@ -72,10 +73,12 @@ import Metalsmith from 'metalsmith';
 import optimizeHTML from 'metalsmith-optimize-html';
 
 Metalsmith(__dirname)
-  .use(optimizeHTML({
-    removeComments: true,
-    removeTagSpaces: true
-  }))
+  .use(
+    optimizeHTML({
+      removeComments: true,
+      removeTagSpaces: true
+    })
+  )
   .build((err) => {
     if (err) throw err;
     console.log('Build complete!');
@@ -88,9 +91,11 @@ Enable all optimizations for maximum compression:
 
 ```javascript
 Metalsmith(__dirname)
-  .use(optimizeHTML({
-    aggressive: true
-  }))
+  .use(
+    optimizeHTML({
+      aggressive: true
+    })
+  )
   .build();
 ```
 
@@ -100,18 +105,20 @@ Fine-tune specific optimizations:
 
 ```javascript
 Metalsmith(__dirname)
-  .use(optimizeHTML({
-    removeComments: true,
-    removeTagSpaces: true,
-    normalizeBooleanAttributes: true,
-    cleanUrlAttributes: true,
-    removeProtocols: true,
-    removeDefaultAttributes: true,
-    simplifyDoctype: true,
-    safeRemoveAttributeQuotes: true,
-    pattern: '**/*.html', // Only process HTML files
-    excludeTags: ['pre', 'code'] // Preserve content in these tags
-  }))
+  .use(
+    optimizeHTML({
+      removeComments: true,
+      removeTagSpaces: true,
+      normalizeBooleanAttributes: true,
+      cleanUrlAttributes: true,
+      removeProtocols: true,
+      removeDefaultAttributes: true,
+      simplifyDoctype: true,
+      safeRemoveAttributeQuotes: true,
+      pattern: '**/*.html', // Only process HTML files
+      excludeTags: ['pre', 'code'] // Preserve content in these tags
+    })
+  )
   .build();
 ```
 
@@ -127,10 +134,12 @@ Metalsmith(__dirname)
       removeTagSpaces: true
     }
   })
-  .use(optimizeHTML({
-    // Local options will override metadata settings
-    simplifyDoctype: true
-  }))
+  .use(
+    optimizeHTML({
+      // Local options will override metadata settings
+      simplifyDoctype: true
+    })
+  )
   .build();
 ```
 
@@ -140,29 +149,32 @@ Metalsmith(__dirname)
 const isProduction = process.env.NODE_ENV === 'production';
 
 Metalsmith(__dirname)
-  .use(optimizeHTML({
-    aggressive: isProduction,
-    removeComments: isProduction,
-    // Keep readable formatting in development
-    removeTagSpaces: isProduction
-  }))
+  .use(
+    optimizeHTML({
+      aggressive: isProduction,
+      removeComments: isProduction,
+      // Keep readable formatting in development
+      removeTagSpaces: isProduction
+    })
+  )
   .build();
 ```
 
 ### Before and After
 
 **Input HTML:**
+
 ```html
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
   <head>
     <!-- This is a comment -->
-    <title>  My Website  </title>
+    <title>My Website</title>
     <script type="text/javascript" src="app.js"></script>
   </head>
   <body>
-    <div   class="container"   id="main">
-      <p>   Hello    world!   </p>
+    <div class="container" id="main">
+      <p>Hello world!</p>
       <input type="checkbox" checked="checked" />
     </div>
   </body>
@@ -170,19 +182,20 @@ Metalsmith(__dirname)
 ```
 
 **Output HTML (with aggressive optimization):**
+
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-<title>My Website</title>
-<script src=app.js></script>
-</head>
-<body>
-<div class=container id=main>
-<p>Hello world!</p>
-<input type=checkbox checked />
-</div>
-</body>
+  <head>
+    <title>My Website</title>
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <div class="container" id="main">
+      <p>Hello world!</p>
+      <input type="checkbox" checked />
+    </div>
+  </body>
 </html>
 ```
 
@@ -395,6 +408,16 @@ This project maintains high statement and line coverage for the source code. Cov
 ## License
 
 [MIT](LICENSE)
+
+## Development transparency
+
+Portions of this project were developed with the assistance of AI tools including Claude and Claude Code. These tools were used to:
+
+- Generate or refactor code
+- Assist with documentation
+- Troubleshoot bugs and explore alternative approaches
+
+All AI-assisted code has been reviewed and tested to ensure it meets project standards. See the included [CLAUDE.md](CLAUDE.md) file for more details.
 
 [npm-badge]: https://img.shields.io/npm/v/metalsmith-optimize-html.svg
 [npm-url]: https://www.npmjs.com/package/metalsmith-optimize-html
