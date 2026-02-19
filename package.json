@@ -1,6 +1,6 @@
 {
   "name": "metalsmith-optimize-html",
-  "version": "0.8.3",
+  "version": "0.9.0",
   "description": "A Metalsmith plugin to optimize HTML files",
   "type": "module",
   "main": "lib/index.cjs",
