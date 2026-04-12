@@ -13,150 +13,372 @@
  * - Creates single-line output except for preserved content
  * - Handles nested inline elements correctly
  *
- * Processing steps:
- * 1. Preserve special tags (pre, code, etc.) with exact whitespace
- * 2. Process inline elements maintaining contextual spacing
- * 3. Handle remaining block-level content
- * 4. Restore preserved content
+ * Processing approach:
+ * Uses a single-pass tokenizer instead of iterative regex matching.
+ * The content is split into tags and text segments once, then processed
+ * via linear token scans — no complex backreference regex or do-while loops.
  */
+
+/**
+ * Pre-compiled regex patterns (module-level for reuse across files)
+ * @private
+ */
+const TAG_SPLIT_RE = /(<\/?[^>]+>)/g;
+const WHITESPACE_RE = /\s+/g;
+const PLACEHOLDER_RE = /___(?:PRESERVE|INLINE)_\d+___/g;
+const TRAILING_SPACE_RE = /\s+$/;
+const LEADING_SPACE_RE = /^\s+/;
+
+/**
+ * Base preserve tag names (always preserved regardless of options)
+ * @private
+ */
+const BASE_PRESERVE_TAGS = ['pre', 'code', 'textarea', 'script', 'style'];
+
+/**
+ * Inline element tag names that affect text flow and spacing
+ * @private
+ */
+const INLINE_TAGS = new Set([
+  'a', 'span', 'em', 'strong', 'b', 'i', 'u', 's',
+  'small', 'mark', 'sub', 'sup', 'time', 'cite', 'abbr', 'label', 'svg'
+]);
+
+/**
+ * Checks whether a character code is whitespace
+ * @param {number} c - Character code
+ * @returns {boolean}
+ */
+function isWS(c) {
+  return c === 32 || c === 9 || c === 10 || c === 13 || c === 12;
+}
+
+/**
+ * Checks whether a string ends with whitespace
+ * @param {string} s - String to check
+ * @returns {boolean}
+ */
+function endsWithWS(s) {
+  return s.length > 0 && isWS(s.charCodeAt(s.length - 1));
+}
+
+/**
+ * Checks whether a string starts with whitespace
+ * @param {string} s - String to check
+ * @returns {boolean}
+ */
+function startsWithWS(s) {
+  return s.length > 0 && isWS(s.charCodeAt(0));
+}
+
+/**
+ * Checks whether a string contains a placeholder pattern (PRESERVE or INLINE)
+ * @param {string} s - String to check
+ * @returns {boolean}
+ */
+function hasProcessedPlaceholder(s) {
+  return s.indexOf('___PRESERVE_') !== -1 || s.indexOf('___INLINE_') !== -1;
+}
+
+/**
+ * Checks whether a string contains any placeholder pattern (PRESERVE, INLINE, or EXCLUDE)
+ * @param {string} s - String to check
+ * @returns {boolean}
+ */
+function hasAnyPlaceholder(s) {
+  return s.indexOf('___PRESERVE_') !== -1 || s.indexOf('___INLINE_') !== -1 || s.indexOf('___EXCLUDE_') !== -1;
+}
+
+/**
+ * Extracts the tag name from an HTML tag string without using regex.
+ * @param {string} tag - The HTML tag string (e.g., '<div>', '</span>', '<a href="...">')
+ * @param {boolean} isClose - Whether this is a closing tag
+ * @returns {string} The lowercase tag name, or empty string if not found
+ */
+function getTagName(tag, isClose) {
+  const start = isClose ? 2 : 1;
+  let end = start;
+  const len = tag.length;
+  while (end < len) {
+    const c = tag.charCodeAt(end);
+    // Stop at space (32), > (62), / (47), tab (9), newline (10), carriage return (13)
+    if (c === 32 || c === 62 || c === 47 || c === 9 || c === 10 || c === 13) {
+      break;
+    }
+    end++;
+  }
+  if (end === start) {
+    return '';
+  }
+  return tag.substring(start, end).toLowerCase();
+}
+
+/**
+ * Checks if an opening tag token is self-closing (ends with />)
+ * @param {string} tag - The tag string
+ * @returns {boolean}
+ */
+function isSelfClosing(tag) {
+  const len = tag.length;
+  return len >= 3 && tag.charCodeAt(len - 2) === 47; // '/' before '>'
+}
 
 export const whitespaceOptimizer = {
   name: 'whitespace',
 
   /**
-   * Optimizes HTML content by managing whitespace in various contexts
+   * Optimizes HTML content by managing whitespace in various contexts.
+   * Uses a single-pass tokenizer approach for performance.
    * @param {string} content - HTML content to optimize
+   * @param {Object} [options] - Optimization options
+   * @param {string[]} [options.excludeTags] - Additional tags to preserve
    * @returns {string} Optimized HTML content
    */
   optimize: (content, options = {}) => {
-    // Check if content already contains placeholders (indicating double processing)
-    const existingPlaceholders = content.match(/___(?:PRESERVE|INLINE)_\d+___/g);
-    if (existingPlaceholders) {
-      // Return content unchanged to avoid double-processing
+    // Check if content already contains PRESERVE/INLINE placeholders (indicating double processing).
+    // EXCLUDE placeholders from content-processor's excludeTags are fine — they're just inert text.
+    if (hasProcessedPlaceholder(content)) {
       return content;
     }
-    // Tags that must maintain exact internal whitespace
-    // These are typically code-related or formatting-specific elements
-    const preserveTags = [
-      'pre',
-      'code',
-      'textarea',
-      'script',
-      'style',
-      ...(options.excludeTags || []) // Additional exclusions, like web-components
-    ];
 
-    // Inline elements that may affect text flow and spacing
-    // These elements should maintain spacing based on their context
-    const inlineTags = [
-      'a',
-      'span',
-      'em',
-      'strong',
-      'b',
-      'i',
-      'u',
-      's', // Basic text formatting
-      'small',
-      'mark',
-      'sub',
-      'sup', // Text presentation
-      'time',
-      'cite',
-      'abbr', // Semantic elements
-      'label',
-      'svg' // UI and graphics elements
-    ];
+    // Build preserve tag set from base tags + user excludeTags
+    const excludeTags = options.excludeTags;
+    const preserveSet = new Set(BASE_PRESERVE_TAGS);
+    if (excludeTags) {
+      for (let i = 0; i < excludeTags.length; i++) {
+        preserveSet.add(excludeTags[i].toLowerCase());
+      }
+    }
 
-    // Storage for content that must be preserved or processed separately
     const preserved = [];
     const inlineElements = [];
 
-    // STEP 1: Preserve special tags
-    // Matches complete tag pairs with their content and preserves them exactly
-    let html = content.replace(new RegExp(`(<(${preserveTags.join('|')})[^>]*>[\\s\\S]*?</\\2>)`, 'gi'), (match) => {
-      const index = preserved.length;
-      preserved.push(match);
-      return `___PRESERVE_${index}___`;
-    });
+    // TOKENIZE ONCE — all subsequent processing uses this token array
+    const tokens = content.split(TAG_SPLIT_RE);
+    const len = tokens.length;
 
-    // STEP 2: Handle inline elements
-    // Complex regex pattern to match inline elements with their surrounding context
-    const inlinePattern = new RegExp(
-      `(\\s*)` + // Leading whitespace
-        `(<(${inlineTags.join('|')})[^>]*>)` + // Opening tag with attributes
-        `([^<]*(?:(?!</\\3)[\\s\\S])*?)` + // Content (including nested elements)
-        `(</\\3>)` + // Closing tag
-        `(\\s*)`, // Trailing whitespace
-      'gi'
-    );
+    // STEP 1: Process preserve blocks (single linear pass)
+    // For each preserve opening tag, find its first matching closing tag
+    // and replace the entire range with a placeholder
+    for (let i = 0; i < len; i++) {
+      const token = tokens[i];
+      if (!token || token.charCodeAt(0) !== 60 || token.charCodeAt(1) === 47) {
+        continue;
+      } // skip non-tags, closing tags (60='<', 47='/')
+      if (isSelfClosing(token)) {
+        continue;
+      }
 
-    // Process nested inline elements iteratively from inside out
-    let lastHtml;
-    do {
-      lastHtml = html;
-      html = html.replace(inlinePattern, (match, beforeSpace, openTag, tagName, content, closeTag, afterSpace) => {
-        // Skip processing if content contains placeholder patterns
-        // This prevents inline processing from interfering with PRESERVE placeholders
-        if (content.match(/___(?:PRESERVE|INLINE|EXCLUDE)_\d+___/)) {
-          return match; // Return unchanged
+      const name = getTagName(token, false);
+      if (!name || !preserveSet.has(name)) {
+        continue;
+      }
+
+      // Find first matching closing tag (matches current regex lazy-match behavior)
+      for (let j = i + 1; j < len; j++) {
+        const t = tokens[j];
+        if (!t || t.charCodeAt(0) !== 60 || t.charCodeAt(1) !== 47) {
+          continue;
         }
-        
-        // Normalize internal whitespace while preserving content
-        const normalizedContent = content.replace(/\s+/g, ' ').trim();
-        const normalized = `${openTag}${normalizedContent}${closeTag}`;
-        const index = inlineElements.length;
-        inlineElements.push(normalized);
+        if (getTagName(t, true) === name) {
+          // Preserve the entire block unchanged
+          const parts = [];
+          for (let k = i; k <= j; k++) {
+            parts.push(tokens[k]);
+          }
+          const idx = preserved.length;
+          preserved.push(parts.join(''));
+          tokens[i] = `___PRESERVE_${idx}___`;
+          for (let k = i + 1; k <= j; k++) {
+            tokens[k] = '';
+          }
+          break;
+        }
+      }
+    }
 
-        // Maintain contextual spacing - keep single space only where space existed
-        const leadSpace = beforeSpace.length > 0 ? ' ' : '';
-        const trailSpace = afterSpace.length > 0 ? ' ' : '';
-        return `${leadSpace}___INLINE_${index}___${trailSpace}`;
+    // STEP 2: Process inline elements (outer-first, single linear scan)
+    for (let i = 0; i < len; i++) {
+      const token = tokens[i];
+      if (!token || token.charCodeAt(0) !== 60 || token.charCodeAt(1) === 47) {
+        continue;
+      }
+      if (isSelfClosing(token)) {
+        continue;
+      }
+
+      const name = getTagName(token, false);
+      if (!name || !INLINE_TAGS.has(name)) {
+        continue;
+      }
+
+      // Find matching closing tag with depth tracking for same-name nesting
+      let depth = 1;
+      let closeIdx = -1;
+      for (let j = i + 1; j < len; j++) {
+        const t = tokens[j];
+        if (!t || t.charCodeAt(0) !== 60) {
+          continue;
+        }
+
+        const isClose = t.charCodeAt(1) === 47;
+        const tName = getTagName(t, isClose);
+        if (tName !== name) {
+          continue;
+        }
+
+        if (isClose) {
+          depth--;
+          if (depth === 0) {
+            closeIdx = j;
+            break;
+          }
+        } else if (!isSelfClosing(t)) {
+          depth++;
+        }
+      }
+
+      if (closeIdx === -1) {
+        continue;
+      }
+
+      // Quick scan: check for placeholders before building inner content string
+      let skip = false;
+      for (let j = i + 1; j < closeIdx; j++) {
+        if (tokens[j] && hasAnyPlaceholder(tokens[j])) {
+          skip = true;
+          break;
+        }
+      }
+      if (skip) {
+        continue;
+      }
+
+      // Build and normalize inner content
+      let innerContent = '';
+      for (let j = i + 1; j < closeIdx; j++) {
+        innerContent += tokens[j];
+      }
+
+      const normalizedContent = innerContent.replace(WHITESPACE_RE, ' ').trim();
+      const normalized = `${token}${normalizedContent}${tokens[closeIdx]}`;
+      const idx = inlineElements.length;
+      inlineElements.push(normalized);
+
+      // Determine contextual spacing from adjacent text tokens.
+      // Stop at tags and at PRESERVE/INLINE placeholders (not EXCLUDE).
+      let hasLeadingSpace = false;
+      for (let j = i - 1; j >= 0; j--) {
+        const t = tokens[j];
+        if (!t) {
+          continue;
+        }
+        if (t.charCodeAt(0) === 60) {
+          break;
+        }
+        if (hasProcessedPlaceholder(t)) {
+          break;
+        }
+        hasLeadingSpace = endsWithWS(t);
+        if (hasLeadingSpace) {
+          tokens[j] = t.replace(TRAILING_SPACE_RE, '');
+        }
+        break;
+      }
+
+      let hasTrailingSpace = false;
+      for (let j = closeIdx + 1; j < len; j++) {
+        const t = tokens[j];
+        if (!t) {
+          continue;
+        }
+        if (t.charCodeAt(0) === 60) {
+          break;
+        }
+        if (hasProcessedPlaceholder(t)) {
+          break;
+        }
+        hasTrailingSpace = startsWithWS(t);
+        if (hasTrailingSpace) {
+          tokens[j] = t.replace(LEADING_SPACE_RE, '');
+        }
+        break;
+      }
+
+      const leadSpace = hasLeadingSpace ? ' ' : '';
+      const trailSpace = hasTrailingSpace ? ' ' : '';
+
+      // Replace the token range with a single placeholder
+      tokens[i] = `${leadSpace}___INLINE_${idx}___${trailSpace}`;
+      for (let k = i + 1; k <= closeIdx; k++) {
+        tokens[k] = '';
+      }
+    }
+
+    // STEP 3: Process all remaining text tokens and trim placeholders at block boundaries
+    // (combines the previous separate Steps 2b and 3 into a single pass)
+    for (let i = 0; i < len; i++) {
+      const token = tokens[i];
+      if (!token || token.charCodeAt(0) === 60) {
+        continue;
+      } // skip empty and tags
+
+      if (hasProcessedPlaceholder(token)) {
+        // PRESERVE/INLINE placeholder: trim spacing at block boundaries
+        let prevIsBlockBoundary = true;
+        for (let j = i - 1; j >= 0; j--) {
+          if (tokens[j]) {
+            prevIsBlockBoundary = tokens[j].charCodeAt(0) === 60;
+            break;
+          }
+        }
+
+        let nextIsBlockBoundary = true;
+        for (let j = i + 1; j < len; j++) {
+          if (tokens[j]) {
+            nextIsBlockBoundary = tokens[j].charCodeAt(0) === 60;
+            break;
+          }
+        }
+
+        let val = token;
+        if (prevIsBlockBoundary) {
+          val = val.replace(LEADING_SPACE_RE, '');
+        }
+        if (nextIsBlockBoundary) {
+          val = val.replace(TRAILING_SPACE_RE, '');
+        }
+        tokens[i] = val;
+      } else {
+        // Regular text (including EXCLUDE placeholders): collapse whitespace and trim
+        tokens[i] = token.replace(WHITESPACE_RE, ' ').trim();
+      }
+    }
+
+    // Join all non-empty tokens
+    let html = '';
+    for (let i = 0; i < len; i++) {
+      if (tokens[i]) {
+        html += tokens[i];
+      }
+    }
+    html = html.trim();
+
+    // STEP 4: Restore preserved content and inline elements
+    if (preserved.length > 0 || inlineElements.length > 0) {
+      const placeholderMap = new Map();
+      for (let i = 0; i < preserved.length; i++) {
+        placeholderMap.set(`___PRESERVE_${i}___`, preserved[i]);
+      }
+      for (let i = 0; i < inlineElements.length; i++) {
+        placeholderMap.set(`___INLINE_${i}___`, inlineElements[i]);
+      }
+
+      html = html.replace(PLACEHOLDER_RE, (match) => {
+        return placeholderMap.get(match) || match;
       });
-    } while (html !== lastHtml); // Continue until all nested elements are processed
-
-    // STEP 3: Process remaining block-level content
-    // Split content into tags and text, process text portions
-    const blockParts = html.split(/(<\/?[^>]+>)/g);
-    html = blockParts
-      .map((part) => {
-        if (part.startsWith('<')) {
-          return part;
-        } // Keep tags unchanged
-        return part.replace(/\s+/g, ' ').trim(); // Normalize text content
-      })
-      .join('')
-      .trim();
-
-    // STEP 4: Restore preserved content
-    // Use a more robust restoration approach that handles all edge cases
-    let result = html;
-    
-    // Create a map of all placeholders and their content for efficient lookup
-    const placeholderMap = new Map();
-    
-    // Add preserved tags to map
-    for (let i = 0; i < preserved.length; i++) {
-      placeholderMap.set(`___PRESERVE_${i}___`, preserved[i]);
     }
-    
-    // Add inline elements to map
-    for (let i = 0; i < inlineElements.length; i++) {
-      placeholderMap.set(`___INLINE_${i}___`, inlineElements[i]);
-    }
-    
-    // Replace all placeholders in a single pass using a regex
-    // This ensures placeholders are replaced even if the content contains other placeholder patterns
-    result = result.replace(/___(?:PRESERVE|INLINE)_\d+___/g, (match) => {
-      const replacement = placeholderMap.get(match);
-      if (replacement) {
-        return replacement;
-      } 
-        // This shouldn't happen in normal operation
-        return match;
-      
-    });
-    
-    return result;
+
+    return html;
   }
 };

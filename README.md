@@ -13,13 +13,13 @@ A modern, modular HTML optimizer for Metalsmith that reduces file sizes by remov
 
 ## Features
 
+- **High Performance**: Single-pass tokenizer architecture processes HTML in linear time, avoiding the exponential backtracking of regex-based approaches
 - **Modular Architecture**: Enable only the optimizations you need
 - **Dual Module Support**: Works with both ESM and CommonJS imports
 - **Safe Optimizations**: Preserves functionality while reducing file size
 - **Comprehensive Options**: Fine-grained control over optimizations
 - **Tag Exclusion**: Exclude specific tags from optimization
 - **Validation**: Robust input validation with helpful error messages
-- **Reliable Compatibility**: Fixed in v0.5.3 to work correctly in CommonJS environments
 - **ESM and CommonJS support**:
   - ESM: `import optimizeHTML from 'metalsmith-optimize-html'`;
   - CommonJS: `const optimizeHTML = require('metalsmith-optimize-html'`;')`
@@ -27,6 +27,12 @@ A modern, modular HTML optimizer for Metalsmith that reduces file sizes by remov
 ## Why this plugin?
 
 [Metalsmith HTML Minifier](https://github.com/whymarrh/metalsmith-html-minifier) was historically the standard plugin for HTML optimization, but it became abandoned with security issues. This plugin is built from scratch with modern JavaScript practices, a functional approach, and minimal dependencies. It offers more granular control over optimizations while maintaining better security and compatibility with current projects.
+
+## Performance
+
+The whitespace optimizer uses a single-pass tokenizer that splits HTML into tags and text segments once, then processes everything through linear token array scans. This avoids the complex backreference regex patterns and iterative loops that can cause catastrophic backtracking on real-world content with many inline elements and nested formatting.
+
+On a real-world production site, this architecture reduced HTML optimization time from over 15 seconds to under 51 milliseconds — a 300x improvement.
 
 ## Installation
 
@@ -209,7 +215,9 @@ The plugin validates all options for correct types and will throw detailed error
 
 - Collapses multiple whitespace to single space
 - Removes whitespace between HTML tags
+- Maintains contextual spacing around inline elements (`<a>`, `<span>`, `<em>`, `<strong>`, etc.)
 - Preserves whitespace in `<pre>`, `<code>`, `<textarea>`, `<script>`, `<style>` tags
+- Handles nested inline elements correctly
 
 ### Optional Optimizations
 
@@ -399,7 +407,7 @@ This project maintains high statement and line coverage for the source code. Cov
 
 | Statements | Branches | Functions | Lines |
 | ---------- | -------- | --------- | ----- |
-| 95%        | 87%      | 89%       | 95%   |
+| 95%        | 89%      | 95%       | 95%   |
 
 ## Author
 
