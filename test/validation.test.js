@@ -2,6 +2,7 @@
  * Tests for option validation in metalsmith-optimize-html
  */
 
+import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import optimizeHTML from '../src/index.js';
 

@@ -2,6 +2,7 @@
  * Edge case and error handling tests for metalsmith-optimize-html
  */
 
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';

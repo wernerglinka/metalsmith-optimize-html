@@ -26,7 +26,7 @@ export const protocolsOptimizer = {
       // Process URL attributes
       return tag.replace(
         /(\s(?:href|src|content|action)=["'])(https?:\/\/[^"']+)(["'])/gi,
-        (match, prefix, url, quote) => `${prefix}//${url.replace(/^https?:\/\//, '')}${quote}`
+        (_match, prefix, url, quote) => `${prefix}//${url.replace(/^https?:\/\//, '')}${quote}`
       );
     });
   }

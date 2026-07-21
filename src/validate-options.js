@@ -105,14 +105,14 @@ function validateOptions(options) {
 
   // Check for unknown options
   for (const key of Object.keys(options)) {
-    if (!Object.prototype.hasOwnProperty.call(VALIDATORS, key)) {
+    if (!Object.hasOwn(VALIDATORS, key)) {
       errors.push(`Unknown option "${key}"`);
     }
   }
 
   // Validate each option
   for (const [name, validator] of Object.entries(VALIDATORS)) {
-    if (Object.prototype.hasOwnProperty.call(options, name)) {
+    if (Object.hasOwn(options, name)) {
       const error = validator(options[name], name);
       if (error) {
         errors.push(error);

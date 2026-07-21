@@ -2,6 +2,7 @@
  * Attribute edge case tests for metalsmith-optimize-html
  */
 
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import Metalsmith from 'metalsmith';
 import optimizeHTML from '../src/index.js';

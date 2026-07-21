@@ -13,11 +13,11 @@ function validatePlaceholderRestoration(_content) {
   // that happens to contain placeholder-like patterns (e.g., in JavaScript strings
   // or generated content). The restoration logic itself is reliable, so we don't
   // need this overly aggressive validation that causes false positives.
-  
+
   // Previously this would scan for patterns like ___PRESERVE_26___ and throw errors,
   // but these patterns can legitimately appear in user content, especially in
   // scripts that generate HTML or work with template systems.
-  
+
   return {
     isValid: true,
     placeholders: []
@@ -33,7 +33,7 @@ function validatePlaceholderRestoration(_content) {
  */
 export function processContent(content, optimizers, options) {
   let result;
-  
+
   // If we have tags to exclude from processing
   if (options.excludeTags?.length > 0) {
     const preserved = [];
@@ -61,8 +61,10 @@ export function processContent(content, optimizers, options) {
   // Validate that no actual placeholders remain
   const validation = validatePlaceholderRestoration(result);
   if (!validation.isValid) {
-    const details = validation.placeholders.map(p => `${p.placeholder} (context: "${p.context}")`).join('\n  ');
-    throw new Error(`METALSMITH-OPTIMIZE-HTML: Placeholder restoration failed! This is a bug.\n\nRemaining placeholders:\n  ${details}\n\nPlease report this issue with the above context to: https://github.com/wernerglinka/metalsmith-optimize-html/issues`);
+    const details = validation.placeholders.map((p) => `${p.placeholder} (context: "${p.context}")`).join('\n  ');
+    throw new Error(
+      `METALSMITH-OPTIMIZE-HTML: Placeholder restoration failed! This is a bug.\n\nRemaining placeholders:\n  ${details}\n\nPlease report this issue with the above context to: https://github.com/wernerglinka/metalsmith-optimize-html/issues`
+    );
   }
 
   return result;

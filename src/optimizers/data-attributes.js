@@ -20,7 +20,7 @@ export const dataAttributesOptimizer = {
         return tag;
       }
 
-      return tag.replace(/\s(data-[^\s=]+)=(["'])([\s\S]*?)\2/g, (match, name, quote, value) => {
+      return tag.replace(/\s(data-[^\s=]+)=(["'])([\s\S]*?)\2/g, (_match, name, _quote, value) => {
         // Remove empty data attributes
         if (!value.trim()) {
           return '';
@@ -39,7 +39,7 @@ export const dataAttributesOptimizer = {
         }
 
         // Handle numeric values
-        if (!isNaN(trimmedValue) && trimmedValue.length > 0) {
+        if (!Number.isNaN(Number(trimmedValue)) && trimmedValue.length > 0) {
           return ` ${name}="${trimmedValue}"`;
         }
 

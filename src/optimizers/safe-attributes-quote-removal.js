@@ -40,7 +40,7 @@ export const safeQuoteRemovalOptimizer = {
     const urlAttributes = new Set(['href', 'src', 'action', 'content', 'srcset', 'xmlns', 'xlink:href']);
 
     return content.replace(/<[^>]+>/g, (tag) => {
-      return tag.replace(/(\s)([\w-]+)=(["'])([^"'<>`\s{}()[\]?=]+)\3/g, (match, space, name, quote, value) => {
+      return tag.replace(/(\s)([\w-]+)=(["'])([^"'<>`\s{}()[\]?=]+)\3/g, (match, space, name, _quote, value) => {
         // Preserve quotes for URL attributes
         if (urlAttributes.has(name) && (value.startsWith('//') || value.includes(':'))) {
           return match;

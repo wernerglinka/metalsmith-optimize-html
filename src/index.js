@@ -72,7 +72,7 @@ function processFile(filename, file, activeOptimizers, mergedOptions, debug) {
 
   // Destructure file properties for cleaner access
   const { contents } = file;
-  
+
   // Get content and process it with error handling
   let content;
   try {
@@ -81,13 +81,13 @@ function processFile(filename, file, activeOptimizers, mergedOptions, debug) {
     debug('skipping %s: failed to decode content as UTF-8 - %s', filename, error.message);
     return false;
   }
-  
+
   // Early filtering: skip files that don't contain HTML tags
   if (!content.includes('<') || !content.includes('>')) {
     debug('skipping %s: no HTML tags detected', filename);
     return false;
   }
-  
+
   // Process content with error handling
   let optimizedContent;
   try {
@@ -110,7 +110,7 @@ function processFile(filename, file, activeOptimizers, mergedOptions, debug) {
     debug('skipping %s: failed to create buffer from optimized content - %s', filename, error.message);
     return false;
   }
-  
+
   debug('processed %s (%d bytes -> %d bytes)', filename, content.length, optimizedContent.length);
   return true;
 }
@@ -154,7 +154,7 @@ export default function optimizeHTML(userOptions = {}) {
         optimizers = optimizerRegistry.loadOptimizers(options);
       }
 
-      const debug = metalsmith.debug ? metalsmith.debug('metalsmith-optimize-html') : () => {};
+      const debug = metalsmith.debug('metalsmith-optimize-html');
       debug('running with options: %O', options);
 
       const activeOptimizers = plugin._testOptimizers || optimizers;

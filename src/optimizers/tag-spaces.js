@@ -26,7 +26,7 @@ export const tagSpacesOptimizer = {
    * @returns {string} Optimized HTML content
    */
   optimize: (content) => {
-    return content.replace(/<([^>]*)>/g, (match, tagContent) => {
+    return content.replace(/<([^>]*)>/g, (_match, tagContent) => {
       // Normalize spaces in attribute values
       const normalizedTag = tagContent
         .replace(/=\s*"/g, '="') // Remove spaces before attribute values

@@ -26,17 +26,17 @@ export function isProcessableFile(file) {
   if (!file || typeof file !== 'object') {
     return false;
   }
-  
+
   // Check if contents property exists and is a Buffer
   if (!file.contents || !Buffer.isBuffer(file.contents)) {
     return false;
   }
-  
+
   // Check if buffer is not empty
   if (file.contents.length === 0) {
     return false;
   }
-  
+
   // Validate that buffer can be safely converted to string
   try {
     const content = file.contents.toString('utf8');

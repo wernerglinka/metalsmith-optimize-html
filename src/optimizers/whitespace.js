@@ -40,8 +40,23 @@ const BASE_PRESERVE_TAGS = ['pre', 'code', 'textarea', 'script', 'style'];
  * @private
  */
 const INLINE_TAGS = new Set([
-  'a', 'span', 'em', 'strong', 'b', 'i', 'u', 's',
-  'small', 'mark', 'sub', 'sup', 'time', 'cite', 'abbr', 'label', 'svg'
+  'a',
+  'span',
+  'em',
+  'strong',
+  'b',
+  'i',
+  'u',
+  's',
+  'small',
+  'mark',
+  'sub',
+  'sup',
+  'time',
+  'cite',
+  'abbr',
+  'label',
+  'svg'
 ]);
 
 /**

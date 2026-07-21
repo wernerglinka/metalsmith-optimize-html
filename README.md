@@ -4,7 +4,7 @@
 [![npm: version][npm-badge]][npm-url]
 [![license: MIT][license-badge]][license-url]
 [![Coverage][coverage-badge]][coverage-url]
-[![ESM/CommonJS][modules-badge]][npm-url]
+[![ESM][modules-badge]][npm-url]
 
 > A Metalsmith plugin for optimizing and minifying HTML files
 
@@ -14,14 +14,11 @@ A modern, modular HTML optimizer for Metalsmith that reduces file sizes by remov
 
 - **High Performance**: Single-pass tokenizer architecture processes HTML in linear time, avoiding the exponential backtracking of regex-based approaches
 - **Modular Architecture**: Enable only the optimizations you need
-- **Dual Module Support**: Works with both ESM and CommonJS imports
 - **Safe Optimizations**: Preserves functionality while reducing file size
 - **Comprehensive Options**: Fine-grained control over optimizations
 - **Tag Exclusion**: Exclude specific tags from optimization
 - **Validation**: Robust input validation with helpful error messages
-- **ESM and CommonJS support**:
-  - ESM: `import optimizeHTML from 'metalsmith-optimize-html'`;
-  - CommonJS: `const optimizeHTML = require('metalsmith-optimize-html'`;')`
+- **ESM-only**, requires Node >= 22. CommonJS consumers can load it on Node 22 via the built-in ESM interop.
 
 ## Why this plugin?
 
@@ -39,12 +36,14 @@ On a real-world production site, this architecture reduced HTML optimization tim
 npm install metalsmith-optimize-html
 ```
 
+This package is **ESM-only** and requires Node >= 22. CommonJS projects on Node 22 can still load it via Node's built-in ESM interop.
+
 ## Usage
 
 ### JavaScript API
 
 ```javascript
-Metalsmith(__dirname).use(
+Metalsmith(import.meta.dirname).use(
   optimizeHTML({
     // options
     removeComments: true,
@@ -77,7 +76,7 @@ In your `metalsmith.json`:
 import Metalsmith from 'metalsmith';
 import optimizeHTML from 'metalsmith-optimize-html';
 
-Metalsmith(__dirname)
+Metalsmith(import.meta.dirname)
   .use(
     optimizeHTML({
       removeComments: true,
@@ -95,7 +94,7 @@ Metalsmith(__dirname)
 Enable all optimizations for maximum compression:
 
 ```javascript
-Metalsmith(__dirname)
+Metalsmith(import.meta.dirname)
   .use(
     optimizeHTML({
       aggressive: true
@@ -109,7 +108,7 @@ Metalsmith(__dirname)
 Fine-tune specific optimizations:
 
 ```javascript
-Metalsmith(__dirname)
+Metalsmith(import.meta.dirname)
   .use(
     optimizeHTML({
       removeComments: true,
@@ -132,7 +131,7 @@ Metalsmith(__dirname)
 Use Metalsmith metadata for global settings:
 
 ```javascript
-Metalsmith(__dirname)
+Metalsmith(import.meta.dirname)
   .metadata({
     htmlOptimization: {
       removeComments: true,
@@ -153,7 +152,7 @@ Metalsmith(__dirname)
 ```javascript
 const isProduction = process.env.NODE_ENV === 'production';
 
-Metalsmith(__dirname)
+Metalsmith(import.meta.dirname)
   .use(
     optimizeHTML({
       aggressive: isProduction,
@@ -354,13 +353,13 @@ The plugin validates all options for correct types and will throw detailed error
   - safeRemoveAttributeQuotes
 
 ```javascript
-Metalsmith(__dirname).use(optimizeHTML({ aggressive: true }));
+Metalsmith(import.meta.dirname).use(optimizeHTML({ aggressive: true }));
 ```
 
 All individual option settings are ignored when aggressive is true, except when explicitly overridden:
 
 ```javascript
-Metalsmith(__dirname).use(
+Metalsmith(import.meta.dirname).use(
   optimizeHTML({
     aggressive: true,
     removeComments: false // This override will be respected
@@ -402,7 +401,7 @@ metalsmith.env( 'DEBUG', 'metalsmith-optimize-html' );
 
 ## Test Coverage
 
-This project maintains high statement and line coverage for the source code. Coverage is automatically verified and updated via GitHub Actions using the c8 coverage tool.
+This project maintains high statement and line coverage for the source code. Coverage is measured with Node's native test runner (`node --test --experimental-test-coverage`).
 
 | Statements | Branches | Functions | Lines |
 | ---------- | -------- | --------- | ----- |
@@ -434,4 +433,4 @@ All AI-assisted code has been reviewed and tested to ensure it meets project sta
 [license-url]: LICENSE
 [coverage-badge]: https://img.shields.io/badge/test%20coverage-96%25-brightgreen
 [coverage-url]: https://github.com/wernerglinka/metalsmith-optimize-html/blob/master/README.md
-[modules-badge]: https://img.shields.io/badge/modules-ESM%2FCJS-blue
+[modules-badge]: https://img.shields.io/badge/module-ESM-blue

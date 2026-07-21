@@ -36,7 +36,7 @@ const OPTIMIZERS = {
   whitespace: whitespaceOptimizer,
   // Optional optimizers - loaded based on options
   removeComments: commentOptimizer,
-  removeEmptyAttributes: emptyAttributesOptimizer, 
+  removeEmptyAttributes: emptyAttributesOptimizer,
   normalizeBooleanAttributes: booleanAttributesOptimizer,
   cleanUrlAttributes: urlAttributesOptimizer,
   cleanDataAttributes: dataAttributesOptimizer,
@@ -92,11 +92,10 @@ function loadOptimizers(options) {
 
     // Load optional optimizers based on options
     // Only load optimizers that are explicitly enabled (truthy), not undefined
-    const flagsToLoad = Object.keys(OPTIMIZERS)
-      .filter(flag => flag !== 'whitespace' && options[flag] === true); // Skip core optimizer and only load explicitly enabled flags
-    
+    const flagsToLoad = Object.keys(OPTIMIZERS).filter((flag) => flag !== 'whitespace' && options[flag] === true); // Skip core optimizer and only load explicitly enabled flags
+
     // Load optimizers and filter out nulls
-    flagsToLoad.forEach(flag => {
+    flagsToLoad.forEach((flag) => {
       const optimizer = getOptimizer(flag);
       if (optimizer) {
         loadedOptimizers.push(optimizer);

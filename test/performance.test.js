@@ -2,6 +2,7 @@
  * Performance tests for metalsmith-optimize-html
  */
 
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import Metalsmith from 'metalsmith';
 import optimizeHTML from '../src/index.js';
@@ -13,10 +14,7 @@ describe('metalsmith-optimize-html performance', () => {
     metalsmith = new Metalsmith('test-path');
   });
 
-  it('should handle large HTML files efficiently', async function () {
-    // This test may take a bit of time
-    this.timeout(10000);
-
+  it('should handle large HTML files efficiently', async () => {
     // Create a very large HTML string with lots of whitespace and nested elements
     let largeHtml = '<!DOCTYPE html><html><head><title>Large Test</title></head><body>';
 
@@ -70,9 +68,7 @@ describe('metalsmith-optimize-html performance', () => {
     assert(duration < 5000, 'Processing time should be reasonable');
   });
 
-  it('should handle multiple files efficiently', async function () {
-    this.timeout(5000);
-
+  it('should handle multiple files efficiently', async () => {
     // Create 100 small HTML files
     const files = {};
 

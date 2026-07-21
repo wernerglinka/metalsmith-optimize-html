@@ -3,6 +3,7 @@
  * Tests core functionality and specific optimizers
  */
 
+import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -128,7 +129,7 @@ describe('metalsmith-optimize-html', () => {
           name: 'tagSpaces',
           optimize: (content) => {
             executionOrder.push('tagSpaces');
-            return content.replace(/<([^>]*)>/g, (match, inner) => `<${inner.replace(/\s+/g, ' ').trim()}>`);
+            return content.replace(/<([^>]*)>/g, (_match, inner) => `<${inner.replace(/\s+/g, ' ').trim()}>`);
           }
         }
       ];
@@ -251,7 +252,7 @@ describe('metalsmith-optimize-html', () => {
       });
 
       const result = files['test.html'].contents.toString();
-      
+
       // Critical assertions to prevent regression of the placeholder bug
       assert(!result.includes('___PRESERVE_'), 'No unrestored PRESERVE placeholders should remain');
       assert(!result.includes('___EXCLUDE_'), 'No unrestored EXCLUDE placeholders should remain');
@@ -402,7 +403,7 @@ describe('metalsmith-optimize-html', () => {
   describe('optimizer edge cases', () => {
     it('should handle content that has no matches for optimizers', async () => {
       // Test branches where optimizers find no matches to process
-      const plugin = optimizeHTML({ 
+      const plugin = optimizeHTML({
         removeEmptyAttributes: true,
         normalizeBooleanAttributes: true,
         cleanDataAttributes: true,
@@ -411,7 +412,7 @@ describe('metalsmith-optimize-html', () => {
         removeProtocols: true,
         cleanUrlAttributes: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from('<p>Simple content with no attributes</p>')
@@ -428,13 +429,13 @@ describe('metalsmith-optimize-html', () => {
 
     it('should handle various edge cases in optimizers', async () => {
       // Test additional edge cases and branches
-      const plugin = optimizeHTML({ 
+      const plugin = optimizeHTML({
         removeEmptyAttributes: true,
         normalizeBooleanAttributes: true,
         cleanUrlAttributes: true,
         cleanDataAttributes: true
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from(`<div>
@@ -450,7 +451,7 @@ describe('metalsmith-optimize-html', () => {
       });
 
       const result = files['test.html'].contents.toString();
-      // Should optimize various attributes 
+      // Should optimize various attributes
       assert(result.includes('disabled'), 'Should normalize boolean attributes');
       assert(result.includes('input'), 'Should preserve input tag');
     });
@@ -536,7 +537,7 @@ describe('metalsmith-optimize-html', () => {
       const result = files['test.html'].contents.toString();
       assert(result.includes('href="/styles.css"'), 'Should clean URL attributes');
     });
-    
+
     it('should handle optimizer early return paths', async () => {
       // Test when optimizers are disabled (early return branches)
       const plugin = optimizeHTML({
@@ -546,7 +547,7 @@ describe('metalsmith-optimize-html', () => {
         removeProtocols: false,
         removeEmptyAttributes: false
       });
-      
+
       const files = {
         'test.html': {
           contents: Buffer.from(`
@@ -1045,7 +1046,7 @@ describe('metalsmith-optimize-html', () => {
       const plugin = optimizeHTML();
       const files = {
         'invalid-utf8.html': {
-          contents: Buffer.from([0xFF, 0xFE, 0xFD]) // Invalid UTF-8
+          contents: Buffer.from([0xff, 0xfe, 0xfd]) // Invalid UTF-8
         },
         'valid.html': {
           contents: Buffer.from('<div>test</div>')
@@ -1082,14 +1083,16 @@ describe('metalsmith-optimize-html', () => {
 
     it('should handle optimizer errors gracefully', async () => {
       const plugin = optimizeHTML();
-      
+
       // Mock an optimizer that throws an error
-      plugin._testOptimizers = [{
-        name: 'error-optimizer',
-        optimize: () => {
-          throw new Error('Optimizer error');
+      plugin._testOptimizers = [
+        {
+          name: 'error-optimizer',
+          optimize: () => {
+            throw new Error('Optimizer error');
+          }
         }
-      }];
+      ];
 
       const files = {
         'error-test.html': {
@@ -1111,12 +1114,14 @@ describe('metalsmith-optimize-html', () => {
 
     it('should handle optimizer returning invalid content', async () => {
       const plugin = optimizeHTML();
-      
+
       // Mock an optimizer that returns invalid content
-      plugin._testOptimizers = [{
-        name: 'invalid-optimizer',
-        optimize: () => null // Returns invalid content
-      }];
+      plugin._testOptimizers = [
+        {
+          name: 'invalid-optimizer',
+          optimize: () => null // Returns invalid content
+        }
+      ];
 
       const files = {
         'invalid-content.html': {
@@ -1134,12 +1139,14 @@ describe('metalsmith-optimize-html', () => {
 
     it('should handle optimizer returning empty string', async () => {
       const plugin = optimizeHTML();
-      
+
       // Mock an optimizer that returns empty string
-      plugin._testOptimizers = [{
-        name: 'empty-optimizer',
-        optimize: () => '' // Returns empty string
-      }];
+      plugin._testOptimizers = [
+        {
+          name: 'empty-optimizer',
+          optimize: () => '' // Returns empty string
+        }
+      ];
 
       const files = {
         'empty-result.html': {
@@ -1160,30 +1167,30 @@ describe('metalsmith-optimize-html', () => {
       assert.throws(() => {
         optimizeHTML({ pattern: 123 }); // Invalid pattern type
       }, /Invalid options/);
-      
+
       // Test non-object options
       assert.throws(() => {
         optimizeHTML('invalid'); // String instead of object
       }, /Options must be an object/);
-      
+
       assert.throws(() => {
         optimizeHTML([]); // Array instead of object
       }, /Options must be an object/);
-      
+
       assert.throws(() => {
         optimizeHTML(null); // null instead of object
       }, /Options must be an object/);
-      
+
       // Test unknown options
       assert.throws(() => {
         optimizeHTML({ unknownOption: true });
       }, /Unknown option "unknownOption"/);
-      
+
       // Test invalid excludeTags array
       assert.throws(() => {
         optimizeHTML({ excludeTags: 'not-array' });
       }, /Option "excludeTags" must be an array/);
-      
+
       assert.throws(() => {
         optimizeHTML({ excludeTags: [123, 'valid'] });
       }, /Option "excludeTags" must contain only strings/);
@@ -1197,16 +1204,14 @@ describe('metalsmith-optimize-html', () => {
         }
       };
 
-      // Mock metalsmith.match to throw an error
-      const mockMetalsmith = {
-        debug: () => () => {},
-        metadata: () => ({}),
-        match: () => {
-          throw new Error('Metalsmith error');
-        }
+      // Use a real Metalsmith instance but force metalsmith.match to throw
+      // so we can exercise the plugin's main try-catch error handling.
+      const metalsmithWithError = new Metalsmith('test-path');
+      metalsmithWithError.match = () => {
+        throw new Error('Metalsmith error');
       };
 
-      await plugin(files, mockMetalsmith, (err) => {
+      await plugin(files, metalsmithWithError, (err) => {
         assert(err);
         assert.strictEqual(err.message, 'Metalsmith error');
       });
@@ -1242,15 +1247,15 @@ describe('metalsmith-optimize-html', () => {
       assert.strictEqual(files['test.html'].contents.toString(), '<div>test</div>');
       assert.strictEqual(files['test.htm'].contents.toString(), '<div>test</div>');
       assert.strictEqual(files['test.HTML'].contents.toString(), '<div>test</div>');
-      
+
       // Should not process non-HTML files
       assert.strictEqual(files['test.txt'].contents.toString(), 'not html');
       assert.strictEqual(files['test.js'].contents.toString(), 'var x = 1;');
     });
-    
+
     it('should test utility functions directly', async () => {
       const { isProcessableFile, isHtmlFile } = await import('../src/utils/file-filters.js');
-      
+
       // Test isHtmlFile function
       assert(isHtmlFile('test.html'));
       assert(isHtmlFile('test.htm'));
@@ -1258,7 +1263,7 @@ describe('metalsmith-optimize-html', () => {
       assert(!isHtmlFile('test.js'));
       assert(!isHtmlFile('test.css'));
       assert(!isHtmlFile('test'));
-      
+
       // Test isProcessableFile function
       assert(isProcessableFile({ contents: Buffer.from('<div>test</div>') }));
       assert(!isProcessableFile({})); // No contents
@@ -1299,8 +1304,8 @@ describe('metalsmith-optimize-html', () => {
       const contentWithPlaceholderLikePattern = '<div><script>var x = "___PRESERVE_0___";</script></div>';
 
       // Process content that contains placeholder-like patterns in legitimate content
-      const { processContent } = (await import('../src/utils/content-processor.js'));
-      
+      const { processContent } = await import('../src/utils/content-processor.js');
+
       // This should NOT throw an error since these are legitimate patterns in user content
       try {
         const result = processContent(contentWithPlaceholderLikePattern, [], {});
