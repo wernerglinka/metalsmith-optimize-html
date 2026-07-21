@@ -5,7 +5,6 @@
 [![license: MIT][license-badge]][license-url]
 [![Coverage][coverage-badge]][coverage-url]
 [![ESM/CommonJS][modules-badge]][npm-url]
-[![Known Vulnerabilities](https://snyk.io/test/npm/metalsmith-optimize-html/badge.svg)](https://snyk.io/test/npm/metalsmith-optimize-html)
 
 > A Metalsmith plugin for optimizing and minifying HTML files
 
