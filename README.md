@@ -431,6 +431,6 @@ All AI-assisted code has been reviewed and tested to ensure it meets project sta
 [metalsmith-url]: https://metalsmith.io
 [license-badge]: https://img.shields.io/github/license/wernerglinka/metalsmith-optimize-html
 [license-url]: LICENSE
-[coverage-badge]: https://img.shields.io/badge/test%20coverage-96%25-brightgreen
+[coverage-badge]: https://img.shields.io/badge/test%20coverage-025-red
 [coverage-url]: https://github.com/wernerglinka/metalsmith-optimize-html/blob/master/README.md
 [modules-badge]: https://img.shields.io/badge/module-ESM-blue
