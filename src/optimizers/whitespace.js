@@ -56,8 +56,21 @@ const INLINE_TAGS = new Set([
   'cite',
   'abbr',
   'label',
-  'svg'
+  'svg',
+  'kbd',
+  'samp',
+  'var'
 ]);
+
+/**
+ * Preserve tags that are also inline elements. Their content is kept verbatim
+ * (via the preserve path), but the whitespace around them must be maintained
+ * like other inline elements rather than stripped at the surrounding text.
+ * Only `code` is both a preserve tag and inline; kbd/samp/var are inline but
+ * not content-preserved, so they live in INLINE_TAGS above.
+ * @private
+ */
+const INLINE_PRESERVE_TAGS = new Set(['code']);
 
 /**
  * Checks whether a character code is whitespace
@@ -206,6 +219,47 @@ export const whitespaceOptimizer = {
           tokens[i] = `___PRESERVE_${idx}___`;
           for (let k = i + 1; k <= j; k++) {
             tokens[k] = '';
+          }
+
+          // Inline preserve tags (code, kbd, …) participate in text flow, so
+          // carry the surrounding whitespace onto the placeholder the same way
+          // Step 2 does for inline elements. Without this, Step 3 trims the
+          // adjacent text tokens and the inline element butts against its
+          // neighbours (e.g. "a <code>x</code> b" → "a<code>x</code>b").
+          // At a block boundary (prev/next is a tag) Step 3 removes the carried
+          // space again, so block-adjacent code is unaffected.
+          if (INLINE_PRESERVE_TAGS.has(name)) {
+            let lead = '';
+            for (let k = i - 1; k >= 0; k--) {
+              const t = tokens[k];
+              if (!t) {
+                continue;
+              }
+              if (t.charCodeAt(0) === 60 || hasProcessedPlaceholder(t)) {
+                break;
+              }
+              if (endsWithWS(t)) {
+                lead = ' ';
+                tokens[k] = t.replace(TRAILING_SPACE_RE, '');
+              }
+              break;
+            }
+            let trail = '';
+            for (let k = j + 1; k < len; k++) {
+              const t = tokens[k];
+              if (!t) {
+                continue;
+              }
+              if (t.charCodeAt(0) === 60 || hasProcessedPlaceholder(t)) {
+                break;
+              }
+              if (startsWithWS(t)) {
+                trail = ' ';
+                tokens[k] = t.replace(LEADING_SPACE_RE, '');
+              }
+              break;
+            }
+            tokens[i] = `${lead}___PRESERVE_${idx}___${trail}`;
           }
           break;
         }

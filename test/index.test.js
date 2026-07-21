@@ -347,6 +347,47 @@ describe('metalsmith-optimize-html', () => {
       );
     });
 
+    it('should preserve spaces around inline <code> while preserving its content', async () => {
+      // <code> is a preserve tag (content kept verbatim) but also an inline
+      // element, so surrounding whitespace must be maintained like other inline
+      // elements rather than stripped.
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from(readFixture('whitespace/inline-code', 'input.html'))
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      assert.strictEqual(
+        files['test.html'].contents.toString(),
+        readFixture('whitespace/inline-code', 'expected.html')
+      );
+    });
+
+    it('should preserve spaces around <kbd>, <samp>, and <var>', async () => {
+      // These are inline elements (not content-preserved): surrounding space is
+      // kept, inner whitespace collapses like other inline elements.
+      const plugin = optimizeHTML();
+      const files = {
+        'test.html': {
+          contents: Buffer.from(readFixture('whitespace/inline-kbd-samp-var', 'input.html'))
+        }
+      };
+
+      await plugin(files, metalsmith, (err) => {
+        assert(!err);
+      });
+
+      assert.strictEqual(
+        files['test.html'].contents.toString(),
+        readFixture('whitespace/inline-kbd-samp-var', 'expected.html')
+      );
+    });
+
     it('should handle various inline elements with spaces', async () => {
       const plugin = optimizeHTML();
       const files = {
